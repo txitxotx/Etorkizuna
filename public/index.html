@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Dashboard Pro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c0f;
+  --surface: #111419;
+  --surface2: #181c23;
+  --surface3: #1e2430;
+  --border: #1e2430;
+  --accent: #00e5a0;
+  --accent2: #ff6b35;
+  --accent3: #4a9eff;
+  --accent4: #f5c518;
+  --red: #ff4757;
+  --text: #e8ecf4;
+  --muted: #6b7a8d;
+  --positive: #00e5a0;
+  --negative: #ff4757;
+  --font-num: 'Bebas Neue', cursive;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,160,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,160,0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+  z-index: 0;
+}
+.container { position: relative; z-index: 1; max-width: 1700px; margin: 0 auto; padding: 24px; }
+
+/* ── HEADER ── */
+header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 22px;
+}
+.header-left h1 {
+  font-family: 'Syne', sans-serif; font-size: 2.1rem; font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.header-left h1 span { color: var(--accent); }
+.header-left p { color: var(--muted); font-size: 0.75rem; margin-top: 4px; letter-spacing: 0.12em; text-transform: uppercase; }
+.header-right { text-align: right; }
+.total-value { font-family: var(--font-num); font-size: 3rem; color: var(--text); letter-spacing: 0.04em; line-height: 1; }
+.total-gain { font-family: var(--font-num); font-size: 1.2rem; color: var(--positive); margin-top: 4px; letter-spacing: 0.06em; }
+.date-badge { font-size: 0.7rem; color: var(--muted); margin-top: 4px; letter-spacing: 0.08em; }
+
+/* ── ASSET FILTER ── */
+.filter-bar {
+  display: flex; gap: 10px; align-items: center; margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+.filter-label { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-right: 4px; }
+.filter-btn {
+  padding: 7px 18px; border-radius: 6px; cursor: pointer;
+  font-size: 0.75rem; font-family: 'Syne', sans-serif; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; transition: all 0.18s;
+  border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+}
+.filter-btn.active-rf { background: rgba(0,229,160,0.15); color: var(--accent); border-color: var(--accent); }
+.filter-btn.active-rv { background: rgba(74,158,255,0.15); color: var(--accent3); border-color: var(--accent3); }
+.filter-btn.active-cr { background: rgba(245,197,24,0.15); color: var(--accent4); border-color: var(--accent4); }
+.filter-btn.active-all { background: rgba(255,255,255,0.08); color: var(--text); border-color: var(--text); }
+.filter-divider { width: 1px; height: 28px; background: var(--border); margin: 0 6px; }
+
+/* ── TABS ── */
+.tabs {
+  display: flex; gap: 4px; margin-bottom: 26px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 4px; width: fit-content;
+}
+.tab {
+  padding: 8px 22px; border-radius: 7px; cursor: pointer;
+  font-size: 0.75rem; font-family: 'Syne', sans-serif; font-weight: 600;
+  color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase;
+  transition: all 0.2s; border: none; background: transparent;
+}
+.tab.active { background: var(--accent); color: #000; }
+.tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── KPI CARDS ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; position: relative; overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.kpi-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.kpi-card.green::before { background: var(--accent); }
+.kpi-card.orange::before { background: var(--accent2); }
+.kpi-card.blue::before { background: var(--accent3); }
+.kpi-card.yellow::before { background: var(--accent4); }
+.kpi-card.red::before { background: var(--red); }
+.kpi-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.kpi-value { font-family: var(--font-num); font-size: 1.9rem; font-weight: 400; color: #fff; letter-spacing: 0.05em; line-height: 1; }
+.kpi-sub { font-size: 0.68rem; color: var(--muted); margin-top: 6px; }
+.kpi-sub.pos { color: var(--positive); }
+.kpi-sub.neg { color: var(--negative); }
+
+/* ── CHART CARDS ── */
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 22px; transition: border-color 0.2s;
+}
+.chart-card:hover { border-color: rgba(0,229,160,0.2); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.card-badge { font-size: 0.65rem; padding: 3px 10px; border-radius: 20px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+/* grids */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.grid-12 { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 18px; }
+.grid-21 { display: grid; grid-template-columns: 1fr 2fr; gap: 18px; margin-bottom: 18px; }
+.col-span { grid-column: 1 / -1; }
+.mb18 { margin-bottom: 18px; }
+
+/* timeframe selector */
+.tf-selector { display: flex; gap: 4px; }
+.tf-btn {
+  padding: 3px 10px; border-radius: 5px; cursor: pointer;
+  font-size: 0.65rem; font-family: 'Syne', sans-serif; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); transition: all 0.15s;
+}
+.tf-btn.active { background: var(--surface3); color: var(--text); border-color: var(--muted); }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+thead th {
+  text-align: left; padding: 8px 12px; font-size: 0.63rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer;
+}
+thead th:hover { color: var(--text); }
+tbody tr { border-bottom: 1px solid rgba(30,36,48,0.5); transition: background 0.12s; }
+tbody tr:hover { background: var(--surface2); }
+tbody td { padding: 9px 12px; white-space: nowrap; }
+.asset-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.78rem; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.num-cell { font-family: var(--font-num); font-size: 1rem; letter-spacing: 0.04em; color: #fff; }
+.num-cell.pos { color: var(--positive); }
+.num-cell.neg { color: var(--negative); }
+.category-badge { font-size: 0.58rem; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+.cat-rf { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.25); }
+.cat-rv { background: rgba(74,158,255,0.12); color: var(--accent3); border: 1px solid rgba(74,158,255,0.25); }
+.cat-cr { background: rgba(245,197,24,0.12); color: var(--accent4); border: 1px solid rgba(245,197,24,0.25); }
+.mini-bar { height: 3px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin-top: 3px; }
+.mini-bar-fill { height: 100%; border-radius: 2px; }
+
+/* ── RISK SECTION ── */
+.risk-meter {
+  background: var(--surface2); border-radius: 8px; padding: 14px;
+  border: 1px solid var(--border);
+}
+.risk-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.risk-scale {
+  height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, #00e5a0, #f5c518, #ff6b35, #ff4757);
+  position: relative; margin-bottom: 8px;
+}
+.risk-needle {
+  position: absolute; top: -4px; width: 2px; height: 14px;
+  background: #fff; border-radius: 1px; transform: translateX(-50%);
+  box-shadow: 0 0 6px rgba(255,255,255,0.5);
+}
+.risk-val { font-family: var(--font-num); font-size: 1.4rem; color: #fff; letter-spacing: 0.06em; }
+
+/* ── DRAWDOWN ── */
+.drawdown-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+}
+.dd-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.dd-item:last-child { border-bottom: none; }
+.dd-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.dd-name { flex: 1; font-size: 0.75rem; }
+.dd-bar-wrap { width: 160px; }
+.dd-bar { height: 5px; border-radius: 3px; background: var(--surface3); overflow: hidden; }
+.dd-bar-fill { height: 100%; border-radius: 3px; }
+.dd-val { font-family: var(--font-num); font-size: 1rem; color: var(--negative); letter-spacing: 0.04em; min-width: 70px; text-align: right; }
+
+/* ── ANALYSIS ── */
+.insight-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.insight-item:last-child { border-bottom: none; }
+.insight-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+.insight-icon.warn { background: rgba(255,107,53,0.15); }
+.insight-icon.good { background: rgba(0,229,160,0.15); }
+.insight-icon.info { background: rgba(74,158,255,0.15); }
+.insight-icon.danger { background: rgba(255,71,87,0.15); }
+.insight-body h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; }
+.insight-body p { font-size: 0.71rem; color: var(--muted); line-height: 1.55; }
+.sev-bar { display: flex; gap: 3px; margin-top: 6px; }
+.sev-dot { width: 6px; height: 6px; border-radius: 2px; background: var(--border); }
+.sev-dot.active.warn { background: var(--accent2); }
+.sev-dot.active.good { background: var(--accent); }
+.sev-dot.active.danger { background: var(--red); }
+
+/* recommendation cards */
+.rec-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; margin-bottom: 12px;
+  border-left: 3px solid transparent;
+}
+.rec-card.buy { border-left-color: var(--accent); }
+.rec-card.hold { border-left-color: var(--accent3); }
+.rec-card.sell { border-left-color: var(--red); }
+.rec-card.rebal { border-left-color: var(--accent4); }
+.rec-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.rec-type { font-size: 0.6rem; padding: 2px 8px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.rec-type.buy { background: rgba(0,229,160,0.15); color: var(--accent); }
+.rec-type.hold { background: rgba(74,158,255,0.15); color: var(--accent3); }
+.rec-type.sell { background: rgba(255,71,87,0.15); color: var(--red); }
+.rec-type.rebal { background: rgba(245,197,24,0.15); color: var(--accent4); }
+.rec-header h4 { font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 700; }
+.rec-card p { font-size: 0.72rem; color: var(--muted); line-height: 1.5; }
+
+/* stats row */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+.stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+.stat-box .val { font-family: var(--font-num); font-size: 1.3rem; color: #fff; letter-spacing: 0.05em; margin-bottom: 3px; }
+.stat-box .lbl { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* tag chips */
+.tag { font-size: 0.58rem; padding: 2px 7px; border-radius: 10px; letter-spacing: 0.06em; text-transform: uppercase; font-family: 'Syne', sans-serif; font-weight: 600; }
+.tag.risk { background: rgba(255,71,87,0.15); color: var(--red); }
+.tag.oport { background: rgba(0,229,160,0.15); color: var(--accent); }
+.tag.divers { background: rgba(74,158,255,0.15); color: var(--accent3); }
+
+/* section separator */
+.section-sep { height: 1px; background: var(--border); margin: 22px 0; }
+
+
+/* ── TREEMAP ── */
+.treemap-container { position: relative; width: 100%; height: 420px; overflow: hidden; }
+.treemap-cell {
+  position: absolute; border: 2px solid #0a0c0f;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden; transition: filter 0.2s, transform 0.2s;
+  border-radius: 4px;
+}
+.treemap-cell:hover { filter: brightness(1.2); transform: scale(1.01); z-index: 10; }
+.treemap-cell .tc-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.72rem; text-align: center; padding: 0 4px; line-height: 1.3; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+.treemap-cell .tc-val  { font-family: var(--font-num); font-size: 1.1rem; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); margin-top: 2px; }
+.treemap-cell .tc-sub  { font-size: 0.6rem; color: rgba(255,255,255,0.7); margin-top: 1px; }
+.treemap-legend { display: flex; gap: 16px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.treemap-legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; color: var(--muted); }
+.treemap-legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+/* ── GEO MAP ── */
+.geo-wrap { position: relative; width: 100%; }
+.geo-wrap svg { width: 100%; height: auto; display: block; }
+.geo-wrap svg path { stroke: #1e2430; stroke-width: 0.5; transition: opacity 0.2s; }
+.geo-wrap svg path.has-exposure { cursor: pointer; }
+.geo-wrap svg path.has-exposure:hover { stroke: #fff; stroke-width: 1; opacity: 0.9; }
+.geo-tooltip {
+  position: absolute; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px; pointer-events: none; font-size: 0.75rem;
+  z-index: 20; display: none; min-width: 180px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.geo-tooltip h4 { font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 700; margin-bottom: 6px; }
+.geo-tooltip .gt-row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 3px; }
+.geo-tooltip .gt-label { color: var(--muted); }
+.geo-tooltip .gt-val { font-family: var(--font-num); font-size: 0.95rem; }
+.geo-legend { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+.geo-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.65rem; color: var(--muted); }
+.geo-legend-swatch { width: 14px; height: 8px; border-radius: 2px; }
+.exposure-bar-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.exposure-bar-row:last-child { border-bottom: none; }
+.exposure-bar-row .er-flag { font-size: 1.1rem; }
+.exposure-bar-row .er-name { flex: 1; font-size: 0.75rem; }
+.exposure-bar-row .er-bar { flex: 2; height: 5px; border-radius: 3px; background: var(--surface3); overflow: hidden; }
+.exposure-bar-row .er-fill { height: 100%; border-radius: 3px; }
+.exposure-bar-row .er-pct { font-family: var(--font-num); font-size: 0.9rem; color: #fff; min-width: 44px; text-align: right; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* category panels */
+.cat-panel { display: none; }
+.cat-panel.show { display: block; }
+
+@media (max-width: 1100px) {
+  .grid-2, .grid-3, .grid-12, .grid-21 { grid-template-columns: 1fr; }
+  .col-span { grid-column: 1; }
+}
+@media (max-width: 680px) {
+  header { flex-direction: column; gap: 14px; }
+  .header-right { text-align: left; }
+  .total-value { font-size: 2.2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ████  UPLOAD SCREEN  ████ -->
+<div id="uploadScreen" style="
+  position:fixed;inset:0;background:#0a0c0f;
+  display:flex;align-items:center;justify-content:center;
+  z-index:99999;flex-direction:column;
+  background-image:linear-gradient(rgba(0,229,160,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,0.03) 1px,transparent 1px);
+  background-size:44px 44px;
+">
+  <style>
+    @keyframes pulse-ring{0%{transform:scale(1);opacity:0.6}50%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:0.6}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes fadein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin-loader{to{transform:rotate(360deg)}}
+    .upload-card{animation:fadein 0.5s ease both;}
+    .drop-zone{
+      border:2px dashed #1e2430;border-radius:20px;padding:52px 60px;
+      text-align:center;cursor:pointer;transition:all 0.25s ease;
+      background:rgba(0,229,160,0.02);min-width:380px;
+    }
+    .drop-zone:hover,.drop-zone.drag-over{
+      border-color:#00e5a0;background:rgba(0,229,160,0.06);
+      box-shadow:0 0 40px rgba(0,229,160,0.12);
+    }
+    .drop-zone .icon{font-size:3.2rem;animation:float 3s ease-in-out infinite;display:block;margin-bottom:20px;}
+    .drop-zone h2{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:#e8ecf4;margin-bottom:8px;}
+    .drop-zone p{font-family:'DM Mono',monospace;font-size:0.75rem;color:#6b7a8d;margin-bottom:24px;line-height:1.6;}
+    .btn-upload{
+      display:inline-flex;align-items:center;gap:8px;
+      background:#00e5a0;color:#0a0c0f;font-family:'Syne',sans-serif;
+      font-weight:800;font-size:0.82rem;letter-spacing:0.08em;
+      padding:12px 24px;border-radius:10px;border:none;cursor:pointer;
+      transition:all 0.2s ease;text-transform:uppercase;
+    }
+    .btn-upload:hover{background:#00ffb3;box-shadow:0 0 24px rgba(0,229,160,0.4);}
+    .upload-hint{margin-top:14px;font-family:'DM Mono',monospace;font-size:0.67rem;color:#3a4a5a;}
+    .upload-error{
+      margin-top:16px;padding:10px 16px;border-radius:8px;
+      background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.3);
+      color:#ff4757;font-family:'DM Mono',monospace;font-size:0.72rem;display:none;
+    }
+    .processing-bar{
+      width:0%;height:3px;background:#00e5a0;border-radius:2px;
+      transition:width 0.4s ease;margin-top:16px;
+    }
+    .logo-mark{
+      font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;
+      letter-spacing:0.2em;color:#00e5a0;margin-bottom:36px;
+      text-transform:uppercase;opacity:0.8;
+    }
+    .recent-badge{
+      margin-top:10px;font-family:'DM Mono',monospace;font-size:0.65rem;
+      color:#3a4a5a;display:none;
+    }
+  </style>
+
+  <div class="upload-card">
+    <div class="logo-mark">◈ Portfolio Dashboard</div>
+    <div class="drop-zone" id="dropZone"
+         ondragover="handleDragOver(event)"
+         ondragleave="handleDragLeave(event)"
+         ondrop="handleDrop(event)">
+      <span class="icon">📊</span>
+      <h2>Carga tu Excel para empezar</h2>
+      <p>
+        Arrastra <strong style="color:#e8ecf4">portfolio_cuadro_mandos.xlsx</strong><br>
+        o haz clic para seleccionarlo
+      </p>
+      <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
+        ▲ &nbsp;Seleccionar archivo
+      </button>
+      <div class="upload-hint">Compatible con .xlsx · Datos nunca salen de tu navegador</div>
+      <div class="processing-bar" id="processingBar"></div>
+      <div class="upload-error" id="uploadError"></div>
+    </div>
+    <div class="recent-badge" id="recentBadge">⟳ Datos cargados anteriormente — recarga el Excel para actualizar</div>
+  </div>
+
+  <input type="file" id="fileInput" accept=".xlsx,.xls"
+         style="display:none" onchange="handleFileInput(event)">
+</div>
+
+<!-- ████  PROCESSING OVERLAY  ████ -->
+<div id="loadingOverlay" style="
+  position:fixed;inset:0;background:rgba(10,12,15,0.97);
+  display:none;align-items:center;justify-content:center;
+  z-index:99998;flex-direction:column;gap:18px;
+">
+  <div style="width:50px;height:50px;border:3px solid #1e2430;border-top-color:#00e5a0;border-radius:50%;animation:spin-loader 0.8s linear infinite"></div>
+  <div style="font-family:'Syne',sans-serif;color:#00e5a0;font-size:0.9rem;font-weight:700;letter-spacing:0.12em">PROCESANDO EXCEL</div>
+  <div style="font-family:'DM Mono',monospace;color:#6b7a8d;font-size:0.7rem" id="loadingMsg">Leyendo activos…</div>
+</div>
+
+<!-- ████  UPDATE BUTTON (visible when dashboard is loaded) ████ -->
+<div id="updateBtn" style="
+  position:fixed;bottom:24px;right:24px;z-index:9000;display:none;
+">
+  <button onclick="document.getElementById('fileInput2').click()" style="
+    display:flex;align-items:center;gap:8px;
+    background:#111419;border:1px solid #1e2430;
+    color:#00e5a0;font-family:'DM Mono',monospace;font-size:0.72rem;
+    padding:10px 16px;border-radius:10px;cursor:pointer;
+    transition:all 0.2s ease;letter-spacing:0.05em;
+    box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  " onmouseover="this.style.borderColor='#00e5a0';this.style.background='#0d1a14'"
+     onmouseout="this.style.borderColor='#1e2430';this.style.background='#111419'">
+    ↑ Actualizar Excel
+  </button>
+  <input type="file" id="fileInput2" accept=".xlsx,.xls" style="display:none" onchange="handleFileInput(event)">
+</div>
+<div class="container">
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <h1>PORTFOLIO <span>DASHBOARD</span></h1>
+    <p>GVC Gaesco · Análisis Avanzado · Febrero 2026</p>
+  </div>
+  <div class="header-right">
+    <div class="total-value">€167,020.52</div>
+    <div class="total-gain">▲ +€14,028.82 · +9.17%</div>
+    <div class="date-badge">Última cotización: 19–22 Feb 2026</div>
+  </div>
+</header>
+
+<!-- ASSET FILTER (global) -->
+<div class="filter-bar">
+  <span class="filter-label">Filtrar por tipo:</span>
+  <button class="filter-btn active-all" id="fbAll" onclick="setFilter('all')">Toda la cartera</button>
+  <button class="filter-btn" id="fbRF" onclick="setFilter('RF')">Renta Fija</button>
+  <button class="filter-btn" id="fbRV" onclick="setFilter('RV')">Renta Variable</button>
+  <button class="filter-btn" id="fbCR" onclick="setFilter('CR')">Criptomonedas</button>
+  <div class="filter-divider"></div>
+  <span id="filterStatus" style="font-size:0.7rem;color:var(--muted)">Mostrando: Todos los activos (25)</span>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showPanel('overview',this)">Visión General</button>
+  <button class="tab" onclick="showPanel('returns',this)">Retornos</button>
+  <button class="tab" onclick="showPanel('assets',this)">Activos</button>
+  <button class="tab" onclick="showPanel('risk',this)">Riesgo</button>
+  <button class="tab" onclick="showPanel('analysis',this)">Análisis</button>
+</div>
+
+<!-- ████████████████████████  PANEL: OVERVIEW  ████████████████████████ -->
+<div class="panel active" id="panel-overview">
+
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card blue">
+      <div class="kpi-label">Valor Total Cartera</div>
+      <div class="kpi-value">€167,021</div>
+      <div class="kpi-sub pos">+9.17% sobre coste</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Ganancia Neta</div>
+      <div class="kpi-value">+€14,029</div>
+      <div class="kpi-sub">Plusvalía no realizada</div>
+    </div>
+    <div class="kpi-card green" id="kpiRF">
+      <div class="kpi-label">Renta Fija</div>
+      <div class="kpi-value">€122,504</div>
+      <div class="kpi-sub pos">+9.15% · 73.4% cartera</div>
+    </div>
+    <div class="kpi-card blue" id="kpiRV">
+      <div class="kpi-label">Renta Variable</div>
+      <div class="kpi-value">€36,493</div>
+      <div class="kpi-sub pos">+13.86% · 21.8% cartera</div>
+    </div>
+    <div class="kpi-card red" id="kpiCR">
+      <div class="kpi-label">Criptomonedas</div>
+      <div class="kpi-value">€1,802</div>
+      <div class="kpi-sub neg">−51.49% · 1.1% cartera</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Mejor Activo</div>
+      <div class="kpi-value">+28.6%</div>
+      <div class="kpi-sub">300 Places Worldwide</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Peor Activo</div>
+      <div class="kpi-value">−77.9%</div>
+      <div class="kpi-sub neg">Pudgy Penguins</div>
+    </div>
+  </div>
+
+  <div class="grid-12">
+    <div class="chart-card">
+      <div class="card-header">
+        <span class="card-title">Retorno acumulado simulado — Cartera completa</span>
+        <div class="tf-selector">
+          <button class="tf-btn active" onclick="changeTF(this,'overview',0)">1M</button>
+          <button class="tf-btn" onclick="changeTF(this,'overview',1)">3M</button>
+          <button class="tf-btn" onclick="changeTF(this,'overview',2)">6M</button>
+          <button class="tf-btn" onclick="changeTF(this,'overview',3)">1A</button>
+        </div>
+      </div>
+      <canvas id="overviewLineChart" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Distribución Actual</span></div>
+      <canvas id="donutChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Retorno Total por Categoría</span><span class="card-badge">% sobre coste</span></div>
+      <canvas id="catReturnBar" height="180"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">YTD por Categoría</span><span class="card-badge">2026</span></div>
+      <canvas id="catYTDBar" height="180"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">MTD por Categoría</span><span class="card-badge">Feb 2026</span></div>
+      <canvas id="catMTDBar" height="180"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ████████████████████████  PANEL: RETURNS  ████████████████████████ -->
+<div class="panel" id="panel-returns">
+
+  <div class="chart-card mb18">
+    <div class="card-header">
+      <span class="card-title">Evolución Comparada por Tipo de Activo</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div class="tf-selector">
+          <button class="tf-btn active" onclick="changeTF(this,'returns',0)">MTD</button>
+          <button class="tf-btn" onclick="changeTF(this,'returns',1)">YTD</button>
+          <button class="tf-btn" onclick="changeTF(this,'returns',2)">TOTAL</button>
+        </div>
+      </div>
+    </div>
+    <canvas id="returnsLineChart" height="220"></canvas>
+  </div>
+
+  <!-- RF section -->
+  <div class="section-sep"></div>
+  <div class="card-header"><span class="card-title" style="color:var(--accent)">● Renta Fija — Detalle de Retornos</span></div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Retorno Total por Fondo RF</span></div>
+      <canvas id="rfTotalBar" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">YTD vs MTD — Renta Fija</span></div>
+      <canvas id="rfYTDMTDLine" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- RV section -->
+  <div class="section-sep"></div>
+  <div class="card-header"><span class="card-title" style="color:var(--accent3)">● Renta Variable — Detalle de Retornos</span></div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Retorno Total por Fondo RV</span></div>
+      <canvas id="rvTotalBar" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">YTD vs MTD — Renta Variable</span></div>
+      <canvas id="rvYTDMTDLine" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Cripto section -->
+  <div class="section-sep"></div>
+  <div class="card-header"><span class="card-title" style="color:var(--accent4)">● Criptomonedas — Detalle de Retornos</span></div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Retorno Total por Activo Cripto</span></div>
+      <canvas id="crTotalBar" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">YTD vs MTD — Criptomonedas</span></div>
+      <canvas id="crYTDMTDLine" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <div class="chart-card mb18">
+    <div class="card-header"><span class="card-title">Ranking completo de rentabilidad — Todos los activos</span><span class="card-badge">% total sobre coste</span></div>
+    <canvas id="fullRankBar" height="180"></canvas>
+  </div>
+
+</div>
+
+<!-- ████████████████████████  PANEL: ASSETS  ████████████████████████ -->
+<div class="panel" id="panel-assets">
+
+  <!-- TABLE first -->
+  <div class="chart-card mb18">
+    <div class="card-header">
+      <span class="card-title">Tabla de Activos</span>
+      <span class="card-badge" id="assetCount">25 activos</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Activo</th>
+            <th>Cat.</th>
+            <th>Invertido</th>
+            <th>Valor Actual</th>
+            <th>G/P (€)</th>
+            <th>Rent. Total</th>
+            <th>YTD</th>
+            <th>MTD</th>
+            <th>Peso Cartera</th>
+          </tr>
+        </thead>
+        <tbody id="assetsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TREEMAP -->
+  <div class="chart-card mb18" style="padding:0;overflow:hidden">
+    <div class="card-header" style="padding:18px 22px 14px">
+      <span class="card-title">Mapa de Posiciones</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span class="card-badge">Tamaño = valor · Color = rentabilidad</span>
+        <div class="tf-selector">
+          <button class="tf-btn active" id="tmBtnTotal" onclick="switchTreemap(this,'total')">Total</button>
+          <button class="tf-btn" id="tmBtnYTD"   onclick="switchTreemap(this,'ytd')">YTD</button>
+          <button class="tf-btn" id="tmBtnMTD"   onclick="switchTreemap(this,'mtd')">MTD</button>
+        </div>
+      </div>
+    </div>
+    <div id="treemapSVGWrap" style="width:100%;line-height:0;position:relative">
+      <!-- SVG treemap rendered here -->
+    </div>
+    <div class="treemap-legend" style="padding:10px 22px 16px">
+      <div class="treemap-legend-item"><div class="treemap-legend-dot" style="background:#27ae60"></div>+20% o más</div>
+      <div class="treemap-legend-item"><div class="treemap-legend-dot" style="background:#2ecc71"></div>+10% a +20%</div>
+      <div class="treemap-legend-item"><div class="treemap-legend-dot" style="background:#1a6640"></div>0% a +10%</div>
+      <div class="treemap-legend-item"><div class="treemap-legend-dot" style="background:#922b21"></div>0% a −20%</div>
+      <div class="treemap-legend-item"><div class="treemap-legend-dot" style="background:#c0392b"></div>−20% a −50%</div>
+      <div class="treemap-legend-item"><div class="treemap-legend-dot" style="background:#6e1010"></div>Más de −50%</div>
+    </div>
+  </div>
+
+  <!-- GEO MAP -->
+  <div class="chart-card mb18">
+    <div class="card-header">
+      <span class="card-title">Mapa Geográfico de Exposición</span>
+      <span class="card-badge">Peso estimado por región</span>
+    </div>
+    <div class="grid-21">
+      <div style="position:relative">
+        <div class="geo-wrap" id="geoWrap"></div>
+        <div class="geo-tooltip" id="geoTooltip"></div>
+      </div>
+      <div>
+        <div style="font-size:0.68rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px">Exposición por Región</div>
+        <div id="exposureBars"></div>
+        <div class="geo-legend" style="margin-top:16px">
+          <div class="geo-legend-item"><div class="geo-legend-swatch" style="background:#00e5a0"></div>Alta (>25%)</div>
+          <div class="geo-legend-item"><div class="geo-legend-swatch" style="background:#4a9eff"></div>Media (10-25%)</div>
+          <div class="geo-legend-item"><div class="geo-legend-swatch" style="background:#2a4a6a"></div>Baja (5-10%)</div>
+          <div class="geo-legend-item"><div class="geo-legend-swatch" style="background:#1e2430"></div>Mínima (<5%)</div>
+          <div class="geo-legend-item"><div class="geo-legend-swatch" style="background:#111419"></div>Sin exposición</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ████████████████████████  PANEL: RISK  ████████████████████████ -->
+<div class="panel" id="panel-risk">
+
+  <div class="kpi-grid">
+    <div class="kpi-card green">
+      <div class="kpi-label">Volatilidad RF (MTD med.)</div>
+      <div class="kpi-value">±0.23%</div>
+      <div class="kpi-sub pos">Muy baja · Defensivo</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Volatilidad RV (MTD med.)</div>
+      <div class="kpi-value">±3.4%</div>
+      <div class="kpi-sub">Moderada · Crecimiento</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Volatilidad Cripto (MTD)</div>
+      <div class="kpi-value">±17.3%</div>
+      <div class="kpi-sub neg">Extrema · Alto riesgo</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Max Drawdown Global</div>
+      <div class="kpi-value">−77.9%</div>
+      <div class="kpi-sub neg">Pudgy Penguins</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Sharpe Ratio Estimado</div>
+      <div class="kpi-value">0.74</div>
+      <div class="kpi-sub">Ajustado al riesgo global</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-label">Beta Estimada (vs Mercado)</div>
+      <div class="kpi-value">0.42</div>
+      <div class="kpi-sub">Cartera defensiva/moderada</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Riesgo vs Rentabilidad (Scatter)</span><span class="card-badge">Volatilidad MTD</span></div>
+      <canvas id="scatterChart" height="260"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Radar de Perfil por Categoría</span></div>
+      <canvas id="radarChart" height="260"></canvas>
+    </div>
+  </div>
+
+  <!-- Drawdown section -->
+  <div class="section-sep"></div>
+  <div class="card-header"><span class="card-title">📉 Drawdown Máximo por Tipo de Activo</span></div>
+
+  <div class="grid-3">
+    <div class="drawdown-card">
+      <div class="card-header" style="margin-bottom:14px">
+        <span class="card-title" style="color:var(--accent)">Renta Fija</span>
+        <span class="card-badge">Max DD individual</span>
+      </div>
+      <div class="risk-meter" style="margin-bottom:16px">
+        <div class="risk-label">Drawdown máximo histórico RF</div>
+        <div class="risk-scale"><div class="risk-needle" style="left:8%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--muted);margin-top:4px"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="risk-val" style="color:var(--accent);margin-top:8px">−8% est.</div>
+      </div>
+      <div id="ddRF"></div>
+    </div>
+    <div class="drawdown-card">
+      <div class="card-header" style="margin-bottom:14px">
+        <span class="card-title" style="color:var(--accent3)">Renta Variable</span>
+        <span class="card-badge">Max DD individual</span>
+      </div>
+      <div class="risk-meter" style="margin-bottom:16px">
+        <div class="risk-label">Drawdown máximo histórico RV</div>
+        <div class="risk-scale"><div class="risk-needle" style="left:30%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--muted);margin-top:4px"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="risk-val" style="color:var(--accent3);margin-top:8px">−30% est.</div>
+      </div>
+      <div id="ddRV"></div>
+    </div>
+    <div class="drawdown-card">
+      <div class="card-header" style="margin-bottom:14px">
+        <span class="card-title" style="color:var(--accent4)">Criptomonedas</span>
+        <span class="card-badge">Max DD individual</span>
+      </div>
+      <div class="risk-meter" style="margin-bottom:16px">
+        <div class="risk-label">Drawdown máximo histórico Cripto</div>
+        <div class="risk-scale"><div class="risk-needle" style="left:78%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--muted);margin-top:4px"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="risk-val" style="color:var(--red);margin-top:8px">−77.9% real</div>
+      </div>
+      <div id="ddCR"></div>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Simulación Drawdown por Categoría</span><span class="card-badge">Escenario mercado bajista</span></div>
+      <canvas id="drawdownLineChart" height="230"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Distribución de Riesgo en Cartera</span><span class="card-badge">Capital en riesgo estimado</span></div>
+      <canvas id="riskDistChart" height="230"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ████████████████████████  PANEL: ANALYSIS  ████████████████████████ -->
+<div class="panel" id="panel-analysis">
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">🔍 Hallazgos Clave</span><span class="card-badge">7 insights</span></div>
+
+      <div class="insight-item">
+        <div class="insight-icon danger">🚨</div>
+        <div class="insight-body">
+          <h4>Cripto: Destrucción masiva de valor (−51.5%)</h4>
+          <p>Las 8 posiciones cripto acumulan −€1,912 sobre €3,714 invertidos. Linea −77.5%, Pudgy Penguins −77.9%, Sui −70.5%. Impacto limitado en cartera total (1.1%) pero el capital está prácticamente perdido. Requiere decisión urgente.</p>
+          <div class="sev-bar"><div class="sev-dot active danger"></div><div class="sev-dot active danger"></div><div class="sev-dot active danger"></div><div class="sev-dot active danger"></div><div class="sev-dot active danger"></div></div>
+        </div>
+      </div>
+
+      <div class="insight-item">
+        <div class="insight-icon warn">⚠️</div>
+        <div class="insight-body">
+          <h4>Concentración crítica en gestora GVC Gaesco</h4>
+          <p>18 de 25 activos son fondos GVC Gaesco (~72% del valor). Riesgo de gestora concentrado: cambios de gestores, comisiones o filosofía de inversión impactarían toda la cartera estructuralmente. Diversificación de gestoras prioritaria.</p>
+          <div class="sev-bar"><div class="sev-dot active warn"></div><div class="sev-dot active warn"></div><div class="sev-dot active warn"></div><div class="sev-dot active warn"></div><div class="sev-dot"></div></div>
+        </div>
+      </div>
+
+      <div class="insight-item">
+        <div class="insight-icon good">✅</div>
+        <div class="insight-body">
+          <h4>Renta Fija: Ancla defensiva sólida (+9.15%)</h4>
+          <p>€122,504 (73.4%) en RF generan rentabilidades estables 2%–15.2%. GVC RF Horizonte lidera con +15.15% acumulado. Posición defensiva excelente para preservar capital durante correcciones. Drawdown máximo estimado: −8%.</p>
+          <div class="sev-bar"><div class="sev-dot active good"></div><div class="sev-dot active good"></div><div class="sev-dot active good"></div><div class="sev-dot active good"></div><div class="sev-dot active good"></div></div>
+        </div>
+      </div>
+
+      <div class="insight-item">
+        <div class="insight-icon good">🌏</div>
+        <div class="insight-body">
+          <h4>Renta Variable: Alta rentabilidad, buena diversificación</h4>
+          <p>RV cubre Japón (+22.4–23.5%), Small Caps USA (+9.3%), Emergentes (+11.7%), 300 Places (+28.6%), MSCI World (+8.5%). Diversificación geográfica correcta dentro de RV. El YTD de Japón (+12.8%) y Value Minu (+8.1%) destacan en 2026.</p>
+          <div class="sev-bar"><div class="sev-dot active good"></div><div class="sev-dot active good"></div><div class="sev-dot active good"></div><div class="sev-dot active good"></div><div class="sev-dot"></div></div>
+        </div>
+      </div>
+
+      <div class="insight-item">
+        <div class="insight-icon warn">📊</div>
+        <div class="insight-body">
+          <h4>Infraexposición a RV: perdiendo retorno potencial</h4>
+          <p>RV genera +13.86% vs RF +9.15%, con un diferencial de +4.7pp. Con horizonte >3 años, incrementar RV del 21.8% al 30–35% mejoraría el retorno esperado sin comprometer la estabilidad. El VIF Clase A FI con MTD negativo (−2.4%) es candidato a revisión dentro de RV.</p>
+          <div class="sev-bar"><div class="sev-dot active warn"></div><div class="sev-dot active warn"></div><div class="sev-dot active warn"></div><div class="sev-dot"></div><div class="sev-dot"></div></div>
+        </div>
+      </div>
+
+      <div class="insight-item">
+        <div class="insight-icon info">🔄</div>
+        <div class="insight-body">
+          <h4>Posiciones fragmentadas en mismos fondos</h4>
+          <p>Existencia de tickets duplicados "CONJUNTA" + individual en GVC Japón, 300 Places y RF Flexible. Consolidar simplificaría seguimiento y podría mejorar condiciones de clase de participación.</p>
+          <div class="sev-bar"><div class="sev-dot active warn"></div><div class="sev-dot active warn"></div><div class="sev-dot"></div><div class="sev-dot"></div><div class="sev-dot"></div></div>
+        </div>
+      </div>
+
+      <div class="insight-item">
+        <div class="insight-icon info">🇨🇳</div>
+        <div class="insight-body">
+          <h4>Pictet China: única posición de RV en pérdidas</h4>
+          <p>Única posición de renta variable con rentabilidad negativa (−0.27% total, −2.71% MTD). China atraviesa complejidades macro estructurales. Evaluar si la tesis de inversión sigue vigente para los próximos 12–24 meses.</p>
+          <div class="sev-bar"><div class="sev-dot active warn"></div><div class="sev-dot active warn"></div><div class="sev-dot"></div><div class="sev-dot"></div><div class="sev-dot"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">💡 Recomendaciones de Inversión</span><span class="card-badge">En bajadas y escenarios</span></div>
+
+      <div class="rec-card sell">
+        <div class="rec-header">
+          <span class="rec-type sell">Vender / Reducir</span>
+          <h4>Liquidar posiciones cripto menores</h4>
+        </div>
+        <p>Pump.fun (−66.4%), Pudgy Penguins (−77.9%), Linea (−77.5%) y Kaspa (−61.9%) han destruido el 95%+ de su valor relativo. <strong>Acción:</strong> Liquidar estas 4 posiciones (~€139 valor residual), aceptar pérdidas y reinvertir en GVC 300 Places o Japón que tienen momentum positivo en 2026. En caídas adicionales del mercado cripto, no promediar a la baja en estas posiciones.</p>
+      </div>
+
+      <div class="rec-card hold">
+        <div class="rec-header">
+          <span class="rec-type hold">Mantener + DCA</span>
+          <h4>Bitcoin y Solana en caídas profundas</h4>
+        </div>
+        <p>Bitcoin (−39.6%) y Solana (−51.2%) tienen mayor liquidez y adopción institucional. <strong>En caídas adicionales ≥15%:</strong> considerar DCA limitado (máx. €500 Bitcoin) si el horizonte es >2 años. Solana: mantener posición actual sin incrementar hasta confirmación de tendencia alcista. XRP: posición mínima, aguantar.</p>
+      </div>
+
+      <div class="rec-card buy">
+        <div class="rec-header">
+          <span class="rec-type buy">Comprar en caídas</span>
+          <h4>Incrementar GVC Japón y 300 Places en correcciones</h4>
+        </div>
+        <p>GVC Japón (+22–23% acumulado) y GVC 300 Places Worldwide (+28.6%) son los mejores performers con YTD sólido (+12.8% y +3.8%). <strong>Estrategia:</strong> Ante correcciones del mercado de −5% a −10% en estos fondos, incrementar posición. Son los activos de mayor calidad de la cartera. Consolidar las posiciones CONJUNTA con las principales para mayor masa crítica.</p>
+      </div>
+
+      <div class="rec-card buy">
+        <div class="rec-header">
+          <span class="rec-type buy">Añadir posición</span>
+          <h4>Ampliar exposición a Fidelity Index Funds en correcciones</h4>
+        </div>
+        <p>Fidelity S&P 500 y MSCI World son fondos indexados de bajo coste que complementan bien los fondos activos de GVC. <strong>En caídas de mercado ≥8%:</strong> incrementar ambas posiciones significativamente. Son el contrapeso ideal a la concentración en GVC Gaesco y ofrecen diversificación de gestora a coste mínimo.</p>
+      </div>
+
+      <div class="rec-card rebal">
+        <div class="rec-header">
+          <span class="rec-type rebal">Rebalancear</span>
+          <h4>Migrar gradualmente RF→RV (objetivo: 65/33/2)</span></h4>
+        </div>
+        <p>Objetivo recomendado: RF 65% → RV 33% → Cripto 2%. <strong>Plan:</strong> En los próximos 12 meses, redirigir nuevas aportaciones hacia RV (80% de aportes nuevos). Aprovechar momentos de corrección en RV (−5% a −10%) para incrementar. El diferencial de retorno RV vs RF (+4.7pp) justifica el riesgo adicional en horizontes >3 años.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box"><div class="val" style="color:var(--accent)">+9.17%</div><div class="lbl">Retorno actual</div></div>
+        <div class="stat-box"><div class="val" style="color:var(--accent3)">~12%</div><div class="lbl">Potencial +1 año</div></div>
+        <div class="stat-box"><div class="val" style="color:var(--accent2)">65/33</div><div class="lbl">RF/RV objetivo</div></div>
+        <div class="stat-box"><div class="val" style="color:var(--red)">−€1,912</div><div class="lbl">Pérd. cripto</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <div class="chart-card mb18">
+    <div class="card-header"><span class="card-title">Comparación Visual: Cartera Actual vs Cartera Optimizada (simulada)</span><span class="card-badge">Escenario recomendado</span></div>
+    <canvas id="optimizedChart" height="160"></canvas>
+  </div>
+
+</div>
+</div><!-- end container -->
+
+<script>
+// ════════════════════════════════════════
+//  EXCEL READER  —  SheetJS (client-side, no server needed)
+// ════════════════════════════════════════
+let ASSETS = [];
+let PORTFOLIO_INPUTS = {};
+let PORTFOLIO_SUMMARY = {};
+let PORTFOLIO_SCENARIOS = [];
+
+// ── Drag & drop handlers ──────────────────────────────────────────────────────
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+  document.getElementById('dropZone').classList.remove('drag-over');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+function handleFileInput(e) {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+  e.target.value = ''; // reset so same file can be reloaded
+}
+
+// ── Progress bar helper ───────────────────────────────────────────────────────
+function setProgress(pct) {
+  document.getElementById('processingBar').style.width = pct + '%';
+}
+function showError(msg) {
+  const el = document.getElementById('uploadError');
+  el.textContent = '⚠️  ' + msg;
+  el.style.display = 'block';
+  setProgress(0);
+}
+
+// ── Main file processor ───────────────────────────────────────────────────────
+function processFile(file) {
+  if (!file.name.match(/\.xlsx?$/i)) {
+    showError('Formato no válido. Solo se admiten archivos .xlsx');
+    return;
+  }
+
+  // Show processing overlay
+  document.getElementById('loadingOverlay').style.display = 'flex';
+  document.getElementById('loadingMsg').textContent = 'Leyendo archivo Excel…';
+  setProgress(15);
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      document.getElementById('loadingMsg').textContent = 'Procesando hojas…';
+      setProgress(40);
+
+      const data = new Uint8Array(e.target.result);
+      const wb   = XLSX.read(data, { type: 'array', cellDates: true });
+
+      document.getElementById('loadingMsg').textContent = 'Extrayendo activos…';
+      setProgress(60);
+
+      // ── Parse sheet names (support emoji prefixes) ──────────────────────────
+      const sheetActivos  = wb.SheetNames.find(n => n.includes('ACTIVOS'))  || wb.SheetNames[1];
+      const sheetInputs   = wb.SheetNames.find(n => n.includes('INPUTS'))   || wb.SheetNames[0];
+      const sheetAnalisis = wb.SheetNames.find(n => n.includes('LISIS'))    || wb.SheetNames[4];
+
+      if (!sheetActivos) throw new Error('No se encontró la hoja de ACTIVOS en el Excel.');
+
+      const wsAct = wb.Sheets[sheetActivos];
+      const wsInp = sheetInputs ? wb.Sheets[sheetInputs] : null;
+      const wsAna = sheetAnalisis ? wb.Sheets[sheetAnalisis] : null;
+
+      // Helper: read cell value safely
+      const cv = (ws, addr) => {
+        if (!ws || !ws[addr]) return null;
+        const c = ws[addr];
+        return c.v !== undefined ? c.v : null;
+      };
+      const toF  = (v, d=0) => { if (v === null || v === undefined || v === '') return d; const f = parseFloat(String(v).replace(/[€%,\s]/g,'')); return isNaN(f) ? d : f; };
+      const toPct= (v, d=0) => { const f = toF(v, d); return Math.abs(f) > 1.5 ? f/100 : f; };
+      const toS  = (v) => v !== null && v !== undefined ? String(v).trim() : '';
+
+      // ── Read assets (rows 5-29, cols A-N) ─────────────────────────────────
+      const assets = [];
+      const ALPHA  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      for (let row = 5; row <= 29; row++) {
+        const name = toS(cv(wsAct, `C${row}`));
+        const cat  = toS(cv(wsAct, `B${row}`));
+        if (!name || !cat) continue;
+
+        const titles   = toF(cv(wsAct, `D${row}`));
+        const buyPx    = toF(cv(wsAct, `E${row}`));
+        const invested = toF(cv(wsAct, `F${row}`)) || titles * buyPx;
+        const priceNow = toF(cv(wsAct, `G${row}`));
+        const currVal  = toF(cv(wsAct, `H${row}`)) || titles * priceNow;
+        const gp       = toF(cv(wsAct, `I${row}`)) || (currVal - invested);
+        const rt       = toPct(cv(wsAct, `J${row}`));
+        const ytd      = toPct(cv(wsAct, `K${row}`));
+        const mtd      = toPct(cv(wsAct, `L${row}`));
+        const rt21     = toPct(cv(wsAct, `M${row}`));
+
+        assets.push({ name, cat, titles, buy_px: buyPx, invested, price_now: priceNow,
+          val: currVal, gp, rt, ytd, mtd, rt21, weight: 0 });
+      }
+      if (assets.length === 0) throw new Error('No se encontraron activos en la hoja ACTIVOS (filas 5-29).');
+
+      // Compute weights
+      const totalVal = assets.reduce((s,a)=>s+a.val, 0);
+      assets.forEach(a => { a.weight = totalVal ? a.val / totalVal : 0; });
+
+      // ── Read inputs ────────────────────────────────────────────────────────
+      let inputs = {
+        rf: 0.02, market_premium: 0.055, inflation: 0.028, tax_rate: 0.19,
+        fee_rf: 0.005, fee_rv: 0.015, fee_cr: 0.001,
+        target_return: 0.08, target_vol: 0.12, target_sharpe: 0.80,
+        exp_ret_rf: 0.07, exp_ret_rv: 0.11, exp_ret_cr: 0.18,
+        exp_vol_rf: 0.04, exp_vol_rv: 0.15, exp_vol_cr: 0.65,
+        target_weight_rf: 0.65, target_weight_rv: 0.33, target_weight_cr: 0.02,
+        sharpe_portfolio: 0, exp_return_portfolio: 0, exp_vol_portfolio: 0,
+        horizon_years: 10,
+      };
+      if (wsInp) {
+        inputs.rf               = toPct(cv(wsInp,'B5'), 0.02);
+        inputs.market_premium   = toPct(cv(wsInp,'B6'), 0.055);
+        inputs.inflation        = toPct(cv(wsInp,'B7'), 0.028);
+        inputs.tax_rate         = toPct(cv(wsInp,'B8'), 0.19);
+        inputs.fee_rf           = toPct(cv(wsInp,'B9'), 0.005);
+        inputs.fee_rv           = toPct(cv(wsInp,'B10'), 0.015);
+        inputs.fee_cr           = toPct(cv(wsInp,'B11'), 0.001);
+        inputs.target_return    = toPct(cv(wsInp,'B12'), 0.08);
+        inputs.target_vol       = toPct(cv(wsInp,'B13'), 0.12);
+        inputs.target_weight_rf = toPct(cv(wsInp,'B18'), 0.65);
+        inputs.target_weight_rv = toPct(cv(wsInp,'B19'), 0.33);
+        inputs.target_weight_cr = toPct(cv(wsInp,'B20'), 0.02);
+        inputs.exp_ret_rf       = toPct(cv(wsInp,'F18'), 0.07);
+        inputs.exp_ret_rv       = toPct(cv(wsInp,'F19'), 0.11);
+        inputs.exp_ret_cr       = toPct(cv(wsInp,'F20'), 0.18);
+        inputs.exp_vol_rf       = toPct(cv(wsInp,'G18'), 0.04);
+        inputs.exp_vol_rv       = toPct(cv(wsInp,'G19'), 0.15);
+        inputs.exp_vol_cr       = toPct(cv(wsInp,'G20'), 0.65);
+        inputs.exp_return_portfolio = toPct(cv(wsInp,'B25'), 0);
+        inputs.exp_vol_portfolio    = toPct(cv(wsInp,'B26'), 0);
+        inputs.sharpe_portfolio     = toF(cv(wsInp,'B27'), 0);
+        inputs.horizon_years        = toF(cv(wsInp,'F6'), 10);
+      }
+      // Calculate portfolio sharpe if not set
+      if (!inputs.sharpe_portfolio && inputs.exp_vol_portfolio) {
+        inputs.sharpe_portfolio = (inputs.exp_return_portfolio - inputs.rf) / inputs.exp_vol_portfolio;
+      }
+      // Derive exp_return/vol if not in Excel
+      if (!inputs.exp_return_portfolio) {
+        const w = [inputs.target_weight_rf, inputs.target_weight_rv, inputs.target_weight_cr];
+        const r = [inputs.exp_ret_rf, inputs.exp_ret_rv, inputs.exp_ret_cr];
+        inputs.exp_return_portfolio = w.reduce((s,wi,i)=>s+wi*r[i], 0);
+      }
+      if (!inputs.exp_vol_portfolio) {
+        const w = [inputs.target_weight_rf, inputs.target_weight_rv, inputs.target_weight_cr];
+        const v = [inputs.exp_vol_rf, inputs.exp_vol_rv, inputs.exp_vol_cr];
+        inputs.exp_vol_portfolio = Math.sqrt(w.reduce((s,wi,i)=>s+wi*wi*v[i]*v[i], 0));
+      }
+
+      // ── Read scenarios ─────────────────────────────────────────────────────
+      const scenLabels = ['🟢 Favorable','⚪ Base','🟡 Corrección moderada','🔴 Mercado bajista','🚨 Crisis severa'];
+      const scenarios  = [];
+      if (wsAna) {
+        for (let i=0; i<5; i++) {
+          const r = 26+i;
+          scenarios.push({
+            label:    toS(cv(wsAna,`A${r}`)) || scenLabels[i],
+            shock_rf: toPct(cv(wsAna,`B${r}`)),
+            shock_rv: toPct(cv(wsAna,`C${r}`)),
+            shock_cr: toPct(cv(wsAna,`D${r}`)),
+            impact:   toPct(cv(wsAna,`E${r}`)),
+            val_est:  toF(cv(wsAna,`F${r}`)),
+            loss_est: toF(cv(wsAna,`G${r}`)),
+          });
+        }
+      }
+
+      // ── Build summary ───────────────────────────────────────────────────────
+      document.getElementById('loadingMsg').textContent = 'Calculando resumen…';
+      setProgress(80);
+
+      const totalInv = assets.reduce((s,a)=>s+a.invested, 0);
+      const totalGP  = totalVal - totalInv;
+      const totalRT  = totalInv ? totalGP/totalInv : 0;
+
+      const catData = (code) => {
+        const grp = assets.filter(a=>a.cat===code);
+        const inv = grp.reduce((s,a)=>s+a.invested,0);
+        const val = grp.reduce((s,a)=>s+a.val,0);
+        return {
+          inv, val, gp: val-inv,
+          rt:  inv ? (val-inv)/inv : 0,
+          ytd: val ? grp.reduce((s,a)=>s+a.ytd*a.val,0)/val : 0,
+          mtd: val ? grp.reduce((s,a)=>s+a.mtd*a.val,0)/val : 0,
+          weight: totalVal ? val/totalVal : 0,
+          count: grp.length,
+        };
+      };
+
+      const sortedRt = [...assets].sort((a,b)=>a.rt-b.rt);
+      const summary = {
+        total_inv: totalInv, total_val: totalVal, total_gp: totalGP, total_rt: totalRT,
+        updated_at: new Date().toLocaleString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+        best_asset:  { name: sortedRt.at(-1)?.name||'', rt: sortedRt.at(-1)?.rt||0 },
+        worst_asset: { name: sortedRt[0]?.name||'',     rt: sortedRt[0]?.rt||0 },
+        cats: { RF: catData('RF'), RV: catData('RV'), CR: catData('CR') },
+      };
+
+      // ── Set globals ─────────────────────────────────────────────────────────
+      ASSETS = assets.map(a => ({
+        name: a.name, cat: a.cat,
+        inv: a.invested, val: a.val, gp: a.gp,
+        rt: a.rt, ytd: a.ytd, mtd: a.mtd, weight: a.weight,
+      }));
+      PORTFOLIO_INPUTS   = inputs;
+      PORTFOLIO_SUMMARY  = summary;
+      PORTFOLIO_SCENARIOS = scenarios;
+
+      setProgress(95);
+      document.getElementById('loadingMsg').textContent = 'Renderizando dashboard…';
+
+      // Short delay for UX
+      setTimeout(() => {
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('uploadScreen').style.display   = 'none';
+        document.getElementById('updateBtn').style.display      = 'block';
+        bootDashboard();
+        setProgress(100);
+      }, 350);
+
+    } catch(err) {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      showError(err.message || 'Error al procesar el archivo Excel.');
+      console.error('Excel parse error:', err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── updateKPICards ────────────────────────────────────────────────────────────
+function updateKPICards() {
+  const s   = PORTFOLIO_SUMMARY;
+  const inp = PORTFOLIO_INPUTS;
+  const rf_cat = s.cats?.RF || {};
+  const rv_cat = s.cats?.RV || {};
+  const cr_cat = s.cats?.CR || {};
+  const setKPI = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  setKPI('kpiTotalVal',  '€' + (s.total_val||0).toLocaleString('es-ES',{maximumFractionDigits:0}));
+  setKPI('kpiGP',        (s.total_gp>=0?'+€':'-€') + Math.abs(s.total_gp||0).toLocaleString('es-ES',{maximumFractionDigits:0}));
+  setKPI('kpiRT',        (s.total_rt>=0?'+':'')+((s.total_rt||0)*100).toFixed(2)+'%');
+  setKPI('kpiRFVal',     '€'+(rf_cat.val||0).toLocaleString('es-ES',{maximumFractionDigits:0}));
+  setKPI('kpiRFRet',     ((rf_cat.rt||0)*100).toFixed(2)+'%');
+  setKPI('kpiRVVal',     '€'+(rv_cat.val||0).toLocaleString('es-ES',{maximumFractionDigits:0}));
+  setKPI('kpiRVRet',     ((rv_cat.rt||0)*100).toFixed(2)+'%');
+  setKPI('kpiCRVal',     '€'+(cr_cat.val||0).toLocaleString('es-ES',{maximumFractionDigits:0}));
+  setKPI('kpiCRRet',     ((cr_cat.rt||0)*100).toFixed(2)+'%');
+  setKPI('kpiSharpe',    (inp.sharpe_portfolio||0).toFixed(2)+'x');
+  setKPI('kpiExpRet',    ((inp.exp_return_portfolio||0)*100).toFixed(2)+'%');
+  setKPI('kpiExpVol',    ((inp.exp_vol_portfolio||0)*100).toFixed(2)+'%');
+  setKPI('kpiRf',        ((inp.rf||0.02)*100).toFixed(2)+'%');
+  setKPI('kpiBestName',  (()=>{ if(!ASSETS.length) return '—'; return [...ASSETS].sort((a,b)=>b.rt-a.rt)[0].name.replace('GVC Gaesco ','').slice(0,22); })());
+  setKPI('kpiBestVal',   (()=>{ if(!ASSETS.length) return '—'; return '+'+(([...ASSETS].sort((a,b)=>b.rt-a.rt)[0].rt)*100).toFixed(1)+'%'; })());
+  setKPI('kpiWorstName', (()=>{ if(!ASSETS.length) return '—'; return [...ASSETS].sort((a,b)=>a.rt-b.rt)[0].name.replace('GVC Gaesco ','').slice(0,22); })());
+  setKPI('kpiWorstVal',  (()=>{ if(!ASSETS.length) return '—'; return (([...ASSETS].sort((a,b)=>a.rt-b.rt)[0].rt)*100).toFixed(1)+'%'; })());
+}
+
+// ── bootDashboard ─────────────────────────────────────────────────────────────
+function bootDashboard() {
+  if (PORTFOLIO_SUMMARY.total_val) TOTAL_VAL = PORTFOLIO_SUMMARY.total_val;
+
+  // Reset all chart cache so they rebuild with new data
+  Object.keys(charts).forEach(k => {
+    try { charts[k].destroy(); } catch(e) {}
+    delete charts[k];
+  });
+
+  // Update header
+  const s = PORTFOLIO_SUMMARY;
+  if (s.total_val) {
+    document.querySelector('.total-value').textContent =
+      '€' + s.total_val.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const gp = s.total_gp, rt = s.total_rt * 100;
+    document.querySelector('.total-gain').textContent =
+      (gp >= 0 ? '▲ +€' : '▼ -€') + Math.abs(gp).toLocaleString('es-ES',{maximumFractionDigits:2}) +
+      ' · ' + (rt >= 0 ? '+' : '') + rt.toFixed(2) + '% total';
+    document.querySelector('.date-badge').textContent = 'Actualizado: ' + s.updated_at;
+  }
+  updateKPICards();
+  activateTab('overview');
+  buildOverviewLine(0);
+  updateOverviewCharts();
+  renderAssetsTable();
+}
+
+const CAT_COLOR = { RF:'#00e5a0', RV:'#4a9eff', CR:'#f5c518' };
+const CAT_NAME  = { RF:'Renta Fija', RV:'Renta Variable', CR:'Criptomonedas' };
+let TOTAL_VAL = 167020.52; // updated from data.json on load
+
+Chart.defaults.color = '#6b7a8d';
+Chart.defaults.borderColor = '#1e2430';
+Chart.defaults.font.family = "'DM Mono',monospace";
+Chart.defaults.font.size = 11;
+
+// ════════════════════════════════════════
+//  FILTER STATE
+// ════════════════════════════════════════
+let activeFilter = 'all';
+let activeTabId = 'overview';
+
+function setFilter(f) {
+  activeFilter = f;
+
+  // Reset all filter button styles
+  document.getElementById('fbAll').className = 'filter-btn';
+  document.getElementById('fbRF').className  = 'filter-btn';
+  document.getElementById('fbRV').className  = 'filter-btn';
+  document.getElementById('fbCR').className  = 'filter-btn';
+
+  const countMap = { all:25, RF:4, RV:13, CR:8 };
+  const nameMap  = { all:'Todos los activos', RF:'Renta Fija', RV:'Renta Variable', CR:'Criptomonedas' };
+  const count = countMap[f];
+
+  if (f === 'all') {
+    document.getElementById('fbAll').classList.add('active-all');
+  } else if (f === 'RF') {
+    document.getElementById('fbRF').classList.add('active-rf');
+  } else if (f === 'RV') {
+    document.getElementById('fbRV').classList.add('active-rv');
+  } else if (f === 'CR') {
+    document.getElementById('fbCR').classList.add('active-cr');
+  }
+  document.getElementById('filterStatus').textContent = `Mostrando: ${nameMap[f]} (${count})`;
+
+  // Always switch to overview so the canvases are visible before redrawing
+  activateTab('overview');
+
+  // Small delay so the panel is rendered before Chart.js tries to draw
+  setTimeout(() => {
+    updateOverviewCharts();
+    renderAssetsTable();
+  }, 30);
+}
+
+function filteredAssets() {
+  return activeFilter === 'all' ? ASSETS : ASSETS.filter(a => a.cat === activeFilter);
+}
+
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+function p(v,d=2){ const s=v>=0?'+':''; return `${s}${(v*100).toFixed(d)}%`; }
+function fmtEur(v){ const s=v>=0?'+€':'-€'; return `${s}${Math.abs(v).toLocaleString('es-ES',{maximumFractionDigits:0})}`; }
+function colorFor(v){ return v>=0?'#00e5a0':'#ff4757'; }
+
+function makeLineData(n, base, variance) {
+  const d = [];
+  let cur = base;
+  for(let i=0;i<n;i++){
+    cur += (Math.random()-0.46)*variance;
+    d.push(+cur.toFixed(3));
+  }
+  return d;
+}
+
+function labels(n, unit='d') {
+  const arr=[];
+  for(let i=n;i>=0;i--) arr.push(unit==='d'?`-${i}d`:(unit==='m'?`-${i}m`:`-${i}w`));
+  return arr;
+}
+
+// ════════════════════════════════════════
+//  CHART REGISTRY (for destroy/recreate)
+// ════════════════════════════════════════
+const charts = {};
+function mkChart(id, cfg) {
+  if(charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), cfg);
+  return charts[id];
+}
+
+// ════════════════════════════════════════
+//  OVERVIEW CHARTS
+// ════════════════════════════════════════
+const overviewTFData = [
+  // MTD: 30 days
+  { labels: labels(30,'d'), datasets:[
+    {label:'Cartera Total',data:makeLineData(31,100,0.4),borderColor:'#e8ecf4',backgroundColor:'rgba(232,236,244,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Renta Fija',  data:makeLineData(31,100,0.15),borderColor:'#00e5a0',backgroundColor:'rgba(0,229,160,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Renta Variable',data:makeLineData(31,100,0.7),borderColor:'#4a9eff',backgroundColor:'rgba(74,158,255,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Cripto',data:makeLineData(31,100,3.5),borderColor:'#f5c518',backgroundColor:'rgba(245,197,24,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+  ]},
+  // 3M
+  { labels: labels(12,'w'), datasets:[
+    {label:'Cartera Total',data:makeLineData(13,100,0.8),borderColor:'#e8ecf4',backgroundColor:'rgba(232,236,244,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Renta Fija',  data:makeLineData(13,100,0.3),borderColor:'#00e5a0',backgroundColor:'rgba(0,229,160,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Renta Variable',data:makeLineData(13,100,1.4),borderColor:'#4a9eff',backgroundColor:'rgba(74,158,255,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Cripto',data:makeLineData(13,100,6),borderColor:'#f5c518',backgroundColor:'rgba(245,197,24,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+  ]},
+  // 6M
+  { labels: labels(24,'w'), datasets:[
+    {label:'Cartera Total',data:makeLineData(25,100,1.0),borderColor:'#e8ecf4',backgroundColor:'rgba(232,236,244,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Renta Fija',  data:makeLineData(25,100,0.4),borderColor:'#00e5a0',backgroundColor:'rgba(0,229,160,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Renta Variable',data:makeLineData(25,100,1.8),borderColor:'#4a9eff',backgroundColor:'rgba(74,158,255,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Cripto',data:makeLineData(25,100,7),borderColor:'#f5c518',backgroundColor:'rgba(245,197,24,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+  ]},
+  // 1Y
+  { labels: labels(12,'m'), datasets:[
+    {label:'Cartera Total',data:makeLineData(13,100,1.5),borderColor:'#e8ecf4',backgroundColor:'rgba(232,236,244,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Renta Fija',  data:makeLineData(13,100,0.5),borderColor:'#00e5a0',backgroundColor:'rgba(0,229,160,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Renta Variable',data:makeLineData(13,100,2.5),borderColor:'#4a9eff',backgroundColor:'rgba(74,158,255,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+    {label:'Cripto',data:makeLineData(13,100,10),borderColor:'#f5c518',backgroundColor:'rgba(245,197,24,0.05)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},
+  ]},
+];
+
+function buildOverviewLine(tfIdx) {
+  const d = overviewTFData[tfIdx];
+  mkChart('overviewLineChart',{
+    type:'line',
+    data: { labels: d.labels, datasets: d.datasets },
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'bottom',labels:{padding:14,boxWidth:10,font:{size:10}}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}`}}
+      },
+      scales:{
+        y:{grid:{color:'#1e2430'},ticks:{callback:v=>v.toFixed(1)}},
+        x:{grid:{display:false},ticks:{maxTicksLimit:10}}
+      }
+    }
+  });
+}
+
+function updateOverviewCharts() {
+  const fa = filteredAssets();
+  const totalInv = fa.reduce((s,a)=>s+a.inv,0);
+  const totalVal = fa.reduce((s,a)=>s+a.val,0);
+
+  // cat bar charts
+  const cats = activeFilter==='all' ? ['RF','RV','CR'] : [activeFilter];
+  const catRt  = cats.map(c=>{ const g=fa.filter(a=>a.cat===c); const i=g.reduce((s,a)=>s+a.inv,0); const v=g.reduce((s,a)=>s+a.val,0); return i>0?((v-i)/i*100):0; });
+  const catYtd = cats.map(c=>{ const g=fa.filter(a=>a.cat===c); return g.length?g.reduce((s,a)=>s+a.ytd,0)/g.length*100:0; });
+  const catMtd = cats.map(c=>{ const g=fa.filter(a=>a.cat===c); return g.length?g.reduce((s,a)=>s+a.mtd,0)/g.length*100:0; });
+  const catLabels = cats.map(c=>CAT_NAME[c]);
+  const catBg = cats.map(c=>CAT_COLOR[c]);
+
+  mkChart('catReturnBar',{type:'bar',data:{labels:catLabels,datasets:[{label:'Rent. Total %',data:catRt.map(v=>+v.toFixed(2)),backgroundColor:cats.map(c=>CAT_COLOR[c]+'aa'),borderColor:catBg,borderWidth:1,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+  mkChart('catYTDBar',{type:'bar',data:{labels:catLabels,datasets:[{label:'YTD %',data:catYtd.map(v=>+v.toFixed(2)),backgroundColor:cats.map(c=>CAT_COLOR[c]+'aa'),borderColor:catBg,borderWidth:1,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+  mkChart('catMTDBar',{type:'bar',data:{labels:catLabels,datasets:[{label:'MTD %',data:catMtd.map(v=>+v.toFixed(2)),backgroundColor:catMtd.map(v=>v>=0?'rgba(0,229,160,0.5)':'rgba(255,71,87,0.5)'),borderColor:catMtd.map(v=>v>=0?'#00e5a0':'#ff4757'),borderWidth:1,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+
+  // donut
+  if(activeFilter==='all'){
+    mkChart('donutChart',{type:'doughnut',data:{labels:['Renta Fija','Renta Variable','Criptomonedas'],datasets:[{data:[
+    (PORTFOLIO_SUMMARY.cats?.RF?.val||122503.95),
+    (PORTFOLIO_SUMMARY.cats?.RV?.val||36493.45),
+    (PORTFOLIO_SUMMARY.cats?.CR?.val||1801.73)
+  ],backgroundColor:['#00e5a0','#4a9eff','#f5c518'],borderColor:'#0a0c0f',borderWidth:3,hoverOffset:8}]},options:{responsive:true,cutout:'66%',plugins:{legend:{position:'bottom',labels:{padding:14,font:{size:10},boxWidth:8}},tooltip:{callbacks:{label:ctx=>`€${ctx.parsed.toLocaleString('es-ES',{maximumFractionDigits:0})} (${(ctx.parsed/TOTAL_VAL*100).toFixed(1)}%)`}}}}});
+  } else {
+    const g=fa;
+    const data=g.map(a=>a.val);
+    const labs=g.map(a=>a.name);
+    const bg=g.map(a=>CAT_COLOR[a.cat]+(Math.floor(Math.random()*40+150).toString(16)));
+    mkChart('donutChart',{type:'doughnut',data:{labels:labs,datasets:[{data,backgroundColor:bg,borderColor:'#0a0c0f',borderWidth:2,hoverOffset:6}]},options:{responsive:true,cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:8,font:{size:9},boxWidth:6}}}}});
+  }
+}
+
+// ════════════════════════════════════════
+//  RETURNS CHARTS
+// ════════════════════════════════════════
+function buildReturnCharts() {
+  const rf = ASSETS.filter(a=>a.cat==='RF');
+  const rv = ASSETS.filter(a=>a.cat==='RV');
+  const cr = ASSETS.filter(a=>a.cat==='CR');
+
+  // Line: multi-timeframe comparison
+  buildReturnsLine(0);
+
+  // RF total bar
+  mkChart('rfTotalBar',{type:'bar',data:{labels:rf.map(a=>a.name),datasets:[{label:'Rent. Total %',data:rf.map(a=>+(a.rt*100).toFixed(2)),backgroundColor:'rgba(0,229,160,0.5)',borderColor:'#00e5a0',borderWidth:1,borderRadius:5}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},y:{grid:{display:false}}}}});
+
+  // RF YTD/MTD line-like bar
+  mkChart('rfYTDMTDLine',{type:'bar',data:{labels:rf.map(a=>a.name),datasets:[{label:'YTD %',data:rf.map(a=>+(a.ytd*100).toFixed(2)),backgroundColor:'rgba(0,229,160,0.5)',borderColor:'#00e5a0',borderWidth:1,borderRadius:4},{label:'MTD %',data:rf.map(a=>+(a.mtd*100).toFixed(2)),backgroundColor:'rgba(245,197,24,0.5)',borderColor:'#f5c518',borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:10,boxWidth:8,font:{size:10}}}},scales:{y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false},ticks:{font:{size:8},maxRotation:30}}}}});
+
+  // RV total bar
+  mkChart('rvTotalBar',{type:'bar',data:{labels:rv.map(a=>a.name),datasets:[{label:'Rent. Total %',data:rv.map(a=>+(a.rt*100).toFixed(2)),backgroundColor:rv.map(a=>a.rt>=0?'rgba(74,158,255,0.5)':'rgba(255,71,87,0.5)'),borderColor:rv.map(a=>a.rt>=0?'#4a9eff':'#ff4757'),borderWidth:1,borderRadius:5}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+  mkChart('rvYTDMTDLine',{type:'bar',data:{labels:rv.map(a=>a.name),datasets:[{label:'YTD %',data:rv.map(a=>+(a.ytd*100).toFixed(2)),backgroundColor:'rgba(74,158,255,0.5)',borderColor:'#4a9eff',borderWidth:1,borderRadius:4},{label:'MTD %',data:rv.map(a=>+(a.mtd*100).toFixed(2)),backgroundColor:'rgba(0,229,160,0.5)',borderColor:'#00e5a0',borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:10,boxWidth:8,font:{size:10}}}},scales:{y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false},ticks:{font:{size:8},maxRotation:45}}}}});
+
+  // CR total bar
+  mkChart('crTotalBar',{type:'bar',data:{labels:cr.map(a=>a.name),datasets:[{label:'Rent. Total %',data:cr.map(a=>+(a.rt*100).toFixed(2)),backgroundColor:'rgba(245,197,24,0.5)',borderColor:'#f5c518',borderWidth:1,borderRadius:5}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},y:{grid:{display:false}}}}});
+  mkChart('crYTDMTDLine',{type:'bar',data:{labels:cr.map(a=>a.name),datasets:[{label:'YTD %',data:cr.map(a=>+(a.ytd*100).toFixed(2)),backgroundColor:cr.map(a=>a.ytd>=0?'rgba(0,229,160,0.4)':'rgba(255,71,87,0.4)'),borderColor:cr.map(a=>a.ytd>=0?'#00e5a0':'#ff4757'),borderWidth:1,borderRadius:4},{label:'MTD %',data:cr.map(a=>+(a.mtd*100).toFixed(2)),backgroundColor:'rgba(245,197,24,0.4)',borderColor:'#f5c518',borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:10,boxWidth:8,font:{size:10}}}},scales:{y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+  // Full rank
+  const sorted = [...ASSETS].sort((a,b)=>b.rt-a.rt);
+  mkChart('fullRankBar',{type:'bar',data:{labels:sorted.map(a=>a.name),datasets:[{label:'Rent. Total %',data:sorted.map(a=>+(a.rt*100).toFixed(2)),backgroundColor:sorted.map(a=>a.rt>=0?(a.cat==='RF'?'rgba(0,229,160,0.6)':a.cat==='RV'?'rgba(74,158,255,0.6)':'rgba(245,197,24,0.6)'):'rgba(255,71,87,0.6)'),borderColor:sorted.map(a=>a.rt>=0?(a.cat==='RF'?'#00e5a0':a.cat==='RV'?'#4a9eff':'#f5c518'):'#ff4757'),borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false},ticks:{font:{size:8},maxRotation:45}}}}});
+}
+
+const returnsTFData = [
+  // MTD
+  {label:'MTD',data:[
+    {label:'RF',data:[0,0.02,0.03,0.05,0.06,0.08,0.09,0.1,0.12,0.13,0.14,0.16,0.17,0.19,0.2,0.22,0.23],bc:'#00e5a0'},
+    {label:'RV',data:[0,0.15,0.32,0.48,0.61,0.8,1.0,1.2,1.4,1.6,1.8,2.1,2.4,2.7,3.0,3.2,3.4],bc:'#4a9eff'},
+    {label:'Cripto',data:[0,-0.5,-1.2,-2.1,-3.5,-5.0,-6.8,-9.0,-11,-13,-15,-17.3,-19,-20,-21,-22,-17.3],bc:'#f5c518'},
+  ]},
+  // YTD
+  {label:'YTD',data:[
+    {label:'RF',data:[0,0.1,0.2,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.97],bc:'#00e5a0'},
+    {label:'RV',data:[0,0.3,0.8,1.5,2.3,3.2,4.1,5.0,5.9,6.8,7.6,8.2,8.6,9.0,9.2,9.4,9.7],bc:'#4a9eff'},
+    {label:'Cripto',data:[0,-1,-3,-6,-10,-15,-20,-25,-28,-30,-32,-33,-32,-31,-30,-31,-30],bc:'#f5c518'},
+  ]},
+  // Total
+  {label:'TOTAL',data:[
+    {label:'RF',data:[0,1,2.5,4,5.5,6.5,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12,9.15],bc:'#00e5a0'},
+    {label:'RV',data:[0,0.5,2,4,6,8,10,12,13,14,14.5,14,13.9,13.8,13.85,13.9,13.86],bc:'#4a9eff'},
+    {label:'Cripto',data:[0,5,10,15,8,0,-5,-15,-25,-35,-42,-48,-52,-53,-51,-51.5,-51.49],bc:'#f5c518'},
+  ]},
+];
+
+function buildReturnsLine(tfIdx) {
+  const tf = returnsTFData[tfIdx];
+  const n = tf.data[0].data.length;
+  const ls = Array.from({length:n},(_,i)=> tfIdx===0?`${i+1}d`:(tfIdx===1?`Sem ${i+1}`:`Period ${i+1}`));
+  mkChart('returnsLineChart',{
+    type:'line',
+    data:{
+      labels:ls,
+      datasets: tf.data.map(d=>({
+        label:CAT_NAME[d.label]||d.label,
+        data:d.data,
+        borderColor:d.bc,
+        backgroundColor:d.bc+'18',
+        tension:0.4,fill:true,pointRadius:2,borderWidth:2.5,
+        pointBackgroundColor:d.bc
+      }))
+    },
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'bottom',labels:{padding:14,boxWidth:10,font:{size:10}}}},
+      scales:{
+        y:{grid:{color:'#1e2430'},ticks:{callback:v=>v.toFixed(1)+'%'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════
+//  ASSETS TABLE
+// ════════════════════════════════════════
+function renderAssetsTable() {
+  const fa = filteredAssets();
+  document.getElementById('assetCount').textContent = `${fa.length} activos`;
+  const tbody = document.getElementById('assetsBody');
+  tbody.innerHTML = '';
+  fa.forEach(a => {
+    const w = (a.val/TOTAL_VAL*100).toFixed(1);
+    const isP = a.gp >= 0;
+    tbody.innerHTML += `
+    <tr>
+      <td><span class="asset-name">${a.name}</span></td>
+      <td><span class="category-badge cat-${a.cat.toLowerCase()}">${CAT_NAME[a.cat]}</span></td>
+      <td><span class="num-cell">€${a.inv.toLocaleString('es-ES',{maximumFractionDigits:0})}</span></td>
+      <td><span class="num-cell">€${a.val.toLocaleString('es-ES',{maximumFractionDigits:0})}</span></td>
+      <td><span class="num-cell ${isP?'pos':'neg'}">${fmtEur(a.gp)}</span></td>
+      <td><span class="num-cell ${isP?'pos':'neg'}">${p(a.rt)}</span></td>
+      <td><span class="num-cell ${a.ytd>=0?'pos':'neg'}">${p(a.ytd)}</span></td>
+      <td><span class="num-cell ${a.mtd>=0?'pos':'neg'}">${p(a.mtd)}</span></td>
+      <td style="min-width:100px">
+        <span class="num-cell" style="font-size:0.9rem">${w}%</span>
+        <div class="mini-bar"><div class="mini-bar-fill" style="width:${Math.min(+w*3,100)}%;background:${CAT_COLOR[a.cat]}"></div></div>
+      </td>
+    </tr>`;
+  });
+}
+
+// ════════════════════════════════════════
+//  RISK CHARTS
+// ════════════════════════════════════════
+function buildRiskCharts() {
+  // Scatter
+  mkChart('scatterChart',{
+    type:'scatter',
+    data:{datasets:[
+      {label:'RF',data:ASSETS.filter(a=>a.cat==='RF').map(a=>({x:Math.abs(a.mtd)*100,y:a.rt*100,label:a.name})),backgroundColor:'rgba(0,229,160,0.6)',borderColor:'#00e5a0',pointRadius:8},
+      {label:'RV',data:ASSETS.filter(a=>a.cat==='RV').map(a=>({x:Math.abs(a.mtd)*100,y:a.rt*100,label:a.name})),backgroundColor:'rgba(74,158,255,0.6)',borderColor:'#4a9eff',pointRadius:8},
+      {label:'Cripto',data:ASSETS.filter(a=>a.cat==='CR').map(a=>({x:Math.abs(a.mtd)*100,y:a.rt*100,label:a.name})),backgroundColor:'rgba(245,197,24,0.6)',borderColor:'#f5c518',pointRadius:8},
+    ]},
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{position:'bottom',labels:{padding:12,boxWidth:8,font:{size:10}}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.raw.label}: Rent.${ctx.raw.y.toFixed(1)}% Vol±${ctx.raw.x.toFixed(1)}%`}}
+      },
+      scales:{
+        x:{title:{display:true,text:'Volatilidad |MTD %|',color:'#6b7a8d',font:{size:10}},grid:{color:'#1e2430'}},
+        y:{title:{display:true,text:'Rentabilidad Total %',color:'#6b7a8d',font:{size:10}},grid:{color:'#1e2430'}}
+      }
+    }
+  });
+
+  // Radar
+  mkChart('radarChart',{
+    type:'radar',
+    data:{
+      labels:['Rentabilidad','Estabilidad','Diversificación','Liquidez','Momentum 2026'],
+      datasets:[
+        {label:'RF',data:[65,92,55,70,45],fill:true,backgroundColor:'rgba(0,229,160,0.12)',borderColor:'#00e5a0',pointBackgroundColor:'#00e5a0'},
+        {label:'RV',data:[84,58,82,76,88],fill:true,backgroundColor:'rgba(74,158,255,0.12)',borderColor:'#4a9eff',pointBackgroundColor:'#4a9eff'},
+        {label:'Cripto',data:[8,8,28,88,20],fill:true,backgroundColor:'rgba(245,197,24,0.12)',borderColor:'#f5c518',pointBackgroundColor:'#f5c518'},
+      ]
+    },
+    options:{responsive:true,scales:{r:{grid:{color:'#1e2430'},pointLabels:{font:{size:10}},ticks:{display:false},suggestedMin:0,suggestedMax:100}},plugins:{legend:{position:'bottom',labels:{padding:12,boxWidth:8,font:{size:10}}}}}
+  });
+
+  // Drawdown items
+  const ddData = {
+    RF: [{n:'GVC RF Horizonte',dd:6,c:'#00e5a0'},{n:'GVC RF Flexible',dd:4,c:'#00e5a0'},{n:'GVC RF Flexible CONJ.',dd:4,c:'#00e5a0'},{n:'GVC Constantfons',dd:3,c:'#00e5a0'}],
+    RV: [{n:'Pictet China',dd:30,c:'#4a9eff'},{n:'GVC VIF Clase A',dd:22,c:'#4a9eff'},{n:'GVC Small Caps A',dd:28,c:'#4a9eff'},{n:'GVC Japón A',dd:18,c:'#4a9eff'},{n:'Fidelity S&P 500',dd:35,c:'#4a9eff'},{n:'GVC 300 Places',dd:25,c:'#4a9eff'}],
+    CR: [{n:'Pudgy Penguins',dd:77.9,c:'#f5c518'},{n:'Linea',dd:77.5,c:'#f5c518'},{n:'Sui',dd:70.5,c:'#f5c518'},{n:'Pump.fun',dd:66.4,c:'#f5c518'},{n:'Kaspa',dd:61.9,c:'#f5c518'},{n:'Solana',dd:51.2,c:'#f5c518'},{n:'XRP',dd:44.4,c:'#f5c518'},{n:'Bitcoin',dd:38.5,c:'#f5c518'}],
+  };
+  ['RF','RV','CR'].forEach(cat=>{
+    const el = document.getElementById('dd'+cat);
+    el.innerHTML = ddData[cat].map(d=>`
+      <div class="dd-item">
+        <div class="dd-dot" style="background:${d.c}"></div>
+        <span class="dd-name">${d.n}</span>
+        <div class="dd-bar-wrap">
+          <div class="dd-bar"><div class="dd-bar-fill" style="width:${Math.min(d.dd,100)}%;background:${d.dd>50?'#ff4757':d.dd>25?'#ff6b35':'#00e5a0'}"></div></div>
+        </div>
+        <span class="dd-val">−${d.dd.toFixed(1)}%</span>
+      </div>`).join('');
+  });
+
+  // Drawdown simulation line
+  const ddLabels = Array.from({length:13},(_,i)=>`-${12-i}m`);
+  mkChart('drawdownLineChart',{
+    type:'line',
+    data:{
+      labels:ddLabels,
+      datasets:[
+        {label:'RF (simulado)',data:[0,-0.5,-1,-1.5,-2,-3,-4,-5,-6,-7,-7.5,-8,-8],borderColor:'#00e5a0',backgroundColor:'rgba(0,229,160,0.08)',tension:0.4,fill:true,pointRadius:2,borderWidth:2},
+        {label:'RV (simulado)',data:[0,-2,-5,-8,-12,-18,-22,-27,-30,-28,-25,-22,-20],borderColor:'#4a9eff',backgroundColor:'rgba(74,158,255,0.08)',tension:0.4,fill:true,pointRadius:2,borderWidth:2},
+        {label:'Cripto (real)',data:[0,-10,-22,-38,-51,-60,-65,-72,-75,-78,-77,-75,-72],borderColor:'#f5c518',backgroundColor:'rgba(245,197,24,0.08)',tension:0.4,fill:true,pointRadius:2,borderWidth:2},
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:'bottom',labels:{padding:12,boxWidth:8,font:{size:10}}}},
+      scales:{y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}
+    }
+  });
+
+  // Risk distribution
+  mkChart('riskDistChart',{
+    type:'doughnut',
+    data:{
+      labels:['RF — Bajo riesgo','RV — Riesgo moderado','Cripto — Alto riesgo'],
+      datasets:[{
+        data:[122503.95*0.08, 36493.45*0.30, 1801.73*0.78],
+        backgroundColor:['rgba(0,229,160,0.6)','rgba(74,158,255,0.6)','rgba(255,71,87,0.6)'],
+        borderColor:'#0a0c0f',borderWidth:3,hoverOffset:6
+      }]
+    },
+    options:{
+      responsive:true,cutout:'58%',
+      plugins:{
+        legend:{position:'bottom',labels:{padding:12,font:{size:10},boxWidth:8}},
+        tooltip:{callbacks:{label:ctx=>`Capital en riesgo est.: €${ctx.parsed.toLocaleString('es-ES',{maximumFractionDigits:0})}`}}
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════
+//  ANALYSIS: optimized chart
+// ════════════════════════════════════════
+function buildAnalysisCharts() {
+  mkChart('optimizedChart',{
+    type:'bar',
+    data:{
+      labels:['RF actual','RV actual','Cripto actual','RF objetivo','RV objetivo','Cripto objetivo'],
+      datasets:[
+        {label:'% Cartera',data:[73.4,21.8,1.1,65,33,2],backgroundColor:['rgba(0,229,160,0.5)','rgba(74,158,255,0.5)','rgba(245,197,24,0.5)','rgba(0,229,160,0.9)','rgba(74,158,255,0.9)','rgba(245,197,24,0.9)'],borderColor:['#00e5a0','#4a9eff','#f5c518','#00e5a0','#4a9eff','#f5c518'],borderWidth:2,borderRadius:6},
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:false},
+        annotation:{},
+        tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y}% del portafolio`}}
+      },
+      scales:{
+        y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'},max:85},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════
+//  TABS & TF SWITCHING
+// ════════════════════════════════════════
+let returnsTFIdx = 0;
+let overviewTFIdx = 0;
+
+function activateTab(id) {
+  activeTabId = id;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  // Highlight matching tab button
+  const labelMap = { overview:'Visión General', returns:'Retornos', assets:'Activos', risk:'Riesgo', analysis:'Análisis' };
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.textContent.trim() === labelMap[id]) t.classList.add('active');
+  });
+  // Lazy-build charts on first visit
+  if (id === 'returns'  && !charts['rfTotalBar'])     { setTimeout(buildReturnCharts, 30); }
+  if (id === 'risk'     && !charts['scatterChart'])    { setTimeout(buildRiskCharts, 30); }
+  if (id === 'analysis' && !charts['optimizedChart'])  { setTimeout(buildAnalysisCharts, 30); }
+  if (id === 'assets') { renderAssetsTable(); setTimeout(() => { buildTreemap(treemapMode); buildGeoMap(); }, 50); }
+}
+
+function showPanel(id, btn) {
+  activateTab(id);
+  if (btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function changeTF(btn, scope, idx) {
+  btn.closest('.tf-selector').querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(scope==='overview') { overviewTFIdx=idx; buildOverviewLine(idx); }
+  if(scope==='returns')  { returnsTFIdx=idx;  buildReturnsLine(idx); }
+}
+
+
+// ════════════════════════════════════════
+//  TREEMAP  (Finviz-style SVG)
+// ════════════════════════════════════════
+let treemapMode = 'total';
+
+function tmColor(v) {
+  if (v >=  0.20) return { bg:'#1a7a3a', hi:'#27ae60', txt:'#afffca' };
+  if (v >=  0.10) return { bg:'#155c2e', hi:'#1e8449', txt:'#7dffaa' };
+  if (v >=  0.03) return { bg:'#0e3d1e', hi:'#196f3d', txt:'#52d68a' };
+  if (v >=  0)    return { bg:'#0a2812', hi:'#0e5c2e', txt:'#3ab06a' };
+  if (v >= -0.03) return { bg:'#3b0d0d', hi:'#7b1a1a', txt:'#ff9090' };
+  if (v >= -0.10) return { bg:'#5c1010', hi:'#922b21', txt:'#ffb3b3' };
+  if (v >= -0.20) return { bg:'#7b1414', hi:'#b03a2e', txt:'#ffcccc' };
+  if (v >= -0.50) return { bg:'#8b1c1c', hi:'#c0392b', txt:'#ffd5d5' };
+  return           { bg:'#5a0a0a', hi:'#922b21', txt:'#ff8080' };
+}
+
+// Squarify algorithm
+function squarifyLayout(items, x, y, w, h, total) {
+  if (!items.length) return [];
+  const cells = [];
+  let rem = [...items];
+  while (rem.length) {
+    const row = [];
+    let rowArea = 0;
+    const isH = w >= h;
+    const side = isH ? h : w;
+    let best = Infinity;
+    for (let i = 0; i < rem.length; i++) {
+      row.push(rem[i]);
+      rowArea += rem[i].val;
+      const rowW = (rowArea / total) * (isH ? w : h);
+      let worst = 0;
+      for (const it of row) {
+        const cs = (it.val / rowArea) * side;
+        const r = Math.max(rowW / cs, cs / rowW);
+        if (r > worst) worst = r;
+      }
+      if (worst > best) { row.pop(); break; }
+      best = worst;
+    }
+    rem = rem.slice(row.length);
+    const usedArea = row.reduce((s,a)=>s+a.val,0);
+    const rowW = (usedArea / total) * (isH ? w : h);
+    let pos = isH ? y : x;
+    for (const it of row) {
+      const cs = (it.val / usedArea) * side;
+      cells.push(isH
+        ? { item:it, x, y:pos, w:rowW, h:cs }
+        : { item:it, x:pos, y, w:cs, h:rowW }
+      );
+      pos += cs;
+    }
+    if (isH) { x += rowW; w -= rowW; }
+    else      { y += rowW; h -= rowW; }
+  }
+  return cells;
+}
+
+// Build tooltip HTML (floating div overlay)
+let tmTooltip = null;
+function ensureTMTooltip() {
+  if (!tmTooltip) {
+    tmTooltip = document.createElement('div');
+    tmTooltip.id = 'tmTooltip';
+    tmTooltip.style.cssText = 'position:fixed;background:#1a1f2a;border:1px solid #2d3748;border-radius:8px;padding:12px 16px;pointer-events:none;font-size:13px;z-index:9999;display:none;min-width:200px;box-shadow:0 8px 32px rgba(0,0,0,0.6);';
+    document.body.appendChild(tmTooltip);
+  }
+  return tmTooltip;
+}
+
+function buildTreemap(mode) {
+  treemapMode = mode;
+  const wrap = document.getElementById('treemapSVGWrap');
+  if (!wrap) return;
+
+  const W = wrap.offsetWidth || 1000;
+  const HEADER = 22; // px per group header
+  const GAP = 2;
+  const CATS_ORDER = ['RF','RV','CR'];
+
+  // Group assets
+  const allData = filteredAssets();
+  const groups = CATS_ORDER
+    .map(cat => {
+      const items = allData
+        .filter(a => a.cat === cat && a.val > 0)
+        .map(a => ({
+          name: a.name.replace('GVC Gaesco ','GVC ').replace('GVC GVC','GVC'),
+          shortName: a.name.replace(/GVC Gaesco ?/,'').replace(/GVC ?/,'').replace(' FI','').replace(' CONJUNTA','*').replace(' Index Fund','').replace(' Index','').trim(),
+          cat: a.cat,
+          val: a.val,
+          inv: a.inv,
+          rt: mode==='total'?a.rt : mode==='ytd'?a.ytd : a.mtd,
+          fullName: a.name
+        }));
+      return { cat, items, total: items.reduce((s,a)=>s+a.val,0) };
+    })
+    .filter(g => g.items.length > 0);
+
+  const grandTotal = groups.reduce((s,g)=>s+g.total,0);
+
+  // Compute group widths proportional to value
+  const groupRects = [];
+  let gx = 0;
+  groups.forEach(g => {
+    const gw = (g.total / grandTotal) * W;
+    groupRects.push({ ...g, x: gx, gw });
+    gx += gw;
+  });
+
+  // Height: compute based on aspect ratio — aim for ~500px total
+  const TARGET_H = Math.max(400, Math.round(W * 0.46));
+  const H = TARGET_H;
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H + HEADER}`);
+  svg.setAttribute('width','100%');
+  svg.style.display = 'block';
+  svg.style.background = '#0a0c0f';
+
+  const tt = ensureTMTooltip();
+
+  groupRects.forEach(({ cat, items, x: gx, gw, total: gTotal }) => {
+    // Group header band
+    const catColMap = { RF:'#00e5a0', RV:'#4a9eff', CR:'#f5c518' };
+    const catBgMap  = { RF:'#0a1f14', RV:'#0a1220', CR:'#1a1500' };
+
+    const headerRect = document.createElementNS(svgNS,'rect');
+    headerRect.setAttribute('x', gx + GAP);
+    headerRect.setAttribute('y', 0);
+    headerRect.setAttribute('width', gw - GAP*2);
+    headerRect.setAttribute('height', HEADER);
+    headerRect.setAttribute('fill', catBgMap[cat]);
+    headerRect.setAttribute('rx', 2);
+    svg.appendChild(headerRect);
+
+    // Header left line accent
+    const accent = document.createElementNS(svgNS,'rect');
+    accent.setAttribute('x', gx + GAP);
+    accent.setAttribute('y', 0);
+    accent.setAttribute('width', 3);
+    accent.setAttribute('height', HEADER);
+    accent.setAttribute('fill', catColMap[cat]);
+    svg.appendChild(accent);
+
+    // Header label
+    const headerTxt = document.createElementNS(svgNS,'text');
+    headerTxt.setAttribute('x', gx + GAP + 10);
+    headerTxt.setAttribute('y', HEADER - 7);
+    headerTxt.setAttribute('fill', catColMap[cat]);
+    headerTxt.setAttribute('font-family','Syne,sans-serif');
+    headerTxt.setAttribute('font-size','10');
+    headerTxt.setAttribute('font-weight','700');
+    headerTxt.setAttribute('letter-spacing','1');
+    headerTxt.textContent = CAT_NAME[cat].toUpperCase();
+    svg.appendChild(headerTxt);
+
+    // Pct label right
+    const totalPct = ((gTotal / grandTotal)*100).toFixed(1);
+    const pctTxt = document.createElementNS(svgNS,'text');
+    pctTxt.setAttribute('x', gx + gw - GAP - 6);
+    pctTxt.setAttribute('y', HEADER - 7);
+    pctTxt.setAttribute('fill', catColMap[cat]);
+    pctTxt.setAttribute('font-family','DM Mono,monospace');
+    pctTxt.setAttribute('font-size','9');
+    pctTxt.setAttribute('text-anchor','end');
+    pctTxt.setAttribute('opacity','0.7');
+    pctTxt.textContent = totalPct + '% cartera';
+    svg.appendChild(pctTxt);
+
+    // Squarify items in this group's column
+    const sorted = [...items].sort((a,b)=>b.val-a.val);
+    const cells = squarifyLayout(sorted, gx + GAP, HEADER + GAP, gw - GAP*2, H - GAP*2, gTotal);
+
+    cells.forEach(({ item, x, y, w, h }) => {
+      if (w < 1 || h < 1) return;
+      const c = tmColor(item.rt);
+      const pct = (item.rt * 100).toFixed(2);
+      const sign = item.rt >= 0 ? '+' : '';
+
+      // Cell background
+      const cellG = document.createElementNS(svgNS,'g');
+      cellG.style.cursor = 'pointer';
+
+      const bg = document.createElementNS(svgNS,'rect');
+      bg.setAttribute('x', x);
+      bg.setAttribute('y', y);
+      bg.setAttribute('width', Math.max(w-GAP, 1));
+      bg.setAttribute('height', Math.max(h-GAP, 1));
+      bg.setAttribute('fill', c.bg);
+      bg.setAttribute('rx', '2');
+      cellG.appendChild(bg);
+
+      // Subtle top shine
+      if (w > 20 && h > 16) {
+        const shine = document.createElementNS(svgNS,'rect');
+        shine.setAttribute('x', x+1);
+        shine.setAttribute('y', y+1);
+        shine.setAttribute('width', Math.max(w-GAP-2, 1));
+        shine.setAttribute('height', Math.min(h*0.3, 20));
+        shine.setAttribute('fill', c.hi);
+        shine.setAttribute('rx','1');
+        shine.setAttribute('opacity','0.18');
+        cellG.appendChild(shine);
+      }
+
+      // Border
+      const border = document.createElementNS(svgNS,'rect');
+      border.setAttribute('x', x);
+      border.setAttribute('y', y);
+      border.setAttribute('width', Math.max(w-GAP, 1));
+      border.setAttribute('height', Math.max(h-GAP, 1));
+      border.setAttribute('fill', 'none');
+      border.setAttribute('stroke', '#0a0c0f');
+      border.setAttribute('stroke-width', '1.5');
+      border.setAttribute('rx','2');
+      cellG.appendChild(border);
+
+      // TEXT — adaptive sizing
+      const cw = w - GAP;
+      const ch = h - GAP;
+      if (cw > 28 && ch > 18) {
+        // Name
+        const nameFontSize = Math.min(Math.max(Math.floor(cw/7), 8), ch > 60 ? 16 : ch > 40 ? 12 : 9);
+        const nameEl = document.createElementNS(svgNS,'text');
+        nameEl.setAttribute('x', x + cw/2);
+        nameEl.setAttribute('y', ch > 55 ? y + ch/2 - 8 : y + ch/2 + 1);
+        nameEl.setAttribute('text-anchor','middle');
+        nameEl.setAttribute('dominant-baseline','middle');
+        nameEl.setAttribute('font-family','Syne,sans-serif');
+        nameEl.setAttribute('font-weight','700');
+        nameEl.setAttribute('font-size', nameFontSize);
+        nameEl.setAttribute('fill', '#ffffff');
+        nameEl.setAttribute('pointer-events','none');
+        // Truncate name
+        const maxChars = Math.floor(cw / (nameFontSize * 0.55));
+        const displayName = item.shortName.length > maxChars
+          ? item.shortName.slice(0, Math.max(maxChars-1,3)) + '…'
+          : item.shortName;
+        nameEl.textContent = displayName;
+        cellG.appendChild(nameEl);
+
+        // Pct value
+        if (ch > 38) {
+          const valFontSize = Math.min(Math.max(Math.floor(cw/8), 7), ch > 60 ? 13 : 10);
+          const valEl = document.createElementNS(svgNS,'text');
+          valEl.setAttribute('x', x + cw/2);
+          valEl.setAttribute('y', y + ch/2 + (ch > 55 ? 14 : 12));
+          valEl.setAttribute('text-anchor','middle');
+          valEl.setAttribute('dominant-baseline','middle');
+          valEl.setAttribute('font-family','"Bebas Neue",cursive');
+          valEl.setAttribute('font-size', valFontSize + 2);
+          valEl.setAttribute('fill', c.txt);
+          valEl.setAttribute('pointer-events','none');
+          valEl.textContent = sign + pct + '%';
+          cellG.appendChild(valEl);
+        }
+
+        // Value in € for large cells
+        if (ch > 72 && cw > 80) {
+          const eurEl = document.createElementNS(svgNS,'text');
+          eurEl.setAttribute('x', x + cw/2);
+          eurEl.setAttribute('y', y + ch/2 + 30);
+          eurEl.setAttribute('text-anchor','middle');
+          eurEl.setAttribute('font-family','"DM Mono",monospace');
+          eurEl.setAttribute('font-size','8');
+          eurEl.setAttribute('fill', 'rgba(255,255,255,0.45)');
+          eurEl.setAttribute('pointer-events','none');
+          eurEl.textContent = '€' + Math.round(item.val).toLocaleString('es-ES');
+          cellG.appendChild(eurEl);
+        }
+      }
+
+      // Hover events
+      cellG.addEventListener('mouseenter', (e) => {
+        bg.setAttribute('fill', c.hi);
+        bg.setAttribute('opacity','0.92');
+        const rt100 = (item.rt*100).toFixed(2);
+        tt.innerHTML = `
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:8px;color:#fff">${item.fullName}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:12px">
+            <span style="color:#6b7a8d">Categoría</span><span style="color:${catColMap[cat]};font-weight:600">${CAT_NAME[cat]}</span>
+            <span style="color:#6b7a8d">Valor actual</span><span style="font-family:'Bebas Neue';font-size:14px;color:#fff">€${item.val.toLocaleString('es-ES',{maximumFractionDigits:0})}</span>
+            <span style="color:#6b7a8d">Rentabilidad</span><span style="font-family:'Bebas Neue';font-size:14px;color:${c.txt}">${sign}${rt100}%</span>
+            <span style="color:#6b7a8d">Peso cartera</span><span style="color:#fff">${(item.val/grandTotal*100).toFixed(1)}%</span>
+          </div>`;
+        tt.style.display = 'block';
+      });
+      cellG.addEventListener('mousemove', (e) => {
+        tt.style.left = (e.clientX + 14) + 'px';
+        tt.style.top  = (e.clientY - 10) + 'px';
+        // Keep in viewport
+        const tw = tt.offsetWidth;
+        if (e.clientX + 14 + tw > window.innerWidth) {
+          tt.style.left = (e.clientX - tw - 14) + 'px';
+        }
+      });
+      cellG.addEventListener('mouseleave', () => {
+        bg.setAttribute('fill', c.bg);
+        bg.removeAttribute('opacity');
+        tt.style.display = 'none';
+      });
+
+      svg.appendChild(cellG);
+    });
+  });
+
+  wrap.innerHTML = '';
+  wrap.appendChild(svg);
+}
+
+function switchTreemap(btn, mode) {
+  document.getElementById('tmBtnTotal').classList.remove('active');
+  document.getElementById('tmBtnYTD').classList.remove('active');
+  document.getElementById('tmBtnMTD').classList.remove('active');
+  btn.classList.add('active');
+  buildTreemap(mode);
+}
+
+// ════════════════════════════════════════
+//  GEO MAP
+// ════════════════════════════════════════
+
+// Regional exposure based on fund mandates (estimated %)
+const GEO_REGIONS = [
+  { id:'esp',   flag:'🇪🇸', name:'España',          pct:12.0, color:'#00e5a0', funds:['GVC RF Horizonte','GVC RF Flexible','GVC Constantfons'] },
+  { id:'eur',   flag:'🇪🇺', name:'Europa',          pct:18.0, color:'#00e5a0', funds:['GVC 300 Places Worldwide','GVC Global Equity DS A','GVC Value Minu A'] },
+  { id:'usa',   flag:'🇺🇸', name:'EE.UU.',          pct:28.5, color:'#00e5a0', funds:['Fidelity S&P 500 Index','GVC Zebra US Small Caps','GVC 300 Places Worldwide','Fidelity MSCI World'] },
+  { id:'jpn',   flag:'🇯🇵', name:'Japón',           pct:10.5, color:'#4a9eff', funds:['GVC Japón A FI','GVC Japón CONJUNTA'] },
+  { id:'chn',   flag:'🇨🇳', name:'China',           pct:4.5,  color:'#2a4a6a', funds:['Pictet China Index'] },
+  { id:'emerg', flag:'🌏', name:'Emergentes',       pct:7.0,  color:'#2a4a6a', funds:['GVC Emergentfond FI'] },
+  { id:'glb',   flag:'🌐', name:'Global / Cripto',  pct:8.5,  color:'#4a9eff', funds:['Bitcoin','Solana','XRP','Linea','Kaspa','Sui','Pump.fun','Pudgy Penguins'] },
+  { id:'rf_int',flag:'💼', name:'RF Internacional', pct:11.0, color:'#4a9eff', funds:['GVC RF Flexible CONJUNTA'] },
+];
+
+// Country SVG paths (simplified world map key countries)
+const SVG_COUNTRIES = [
+  // USA
+  { id:'usa', d:'M 75,95 L 185,95 L 185,75 L 220,75 L 220,55 L 250,55 L 250,95 L 300,95 L 300,150 L 250,170 L 200,165 L 150,155 L 100,155 L 75,140 Z', label:'EE.UU.' },
+  // Canada
+  { id:'can', d:'M 75,55 L 300,55 L 300,95 L 75,95 Z', label:'Canadá' },
+  // Mexico
+  { id:'mex', d:'M 100,155 L 230,155 L 230,190 L 175,195 L 130,190 Z', label:'México' },
+  // Brasil
+  { id:'bra', d:'M 210,195 L 320,190 L 330,250 L 310,300 L 250,305 L 200,280 L 195,240 Z', label:'Brasil' },
+  // Argentina
+  { id:'arg', d:'M 215,305 L 295,300 L 285,365 L 250,380 L 220,360 Z', label:'Argentina' },
+  // Colombia
+  { id:'col', d:'M 180,195 L 210,195 L 215,230 L 185,235 Z', label:'Colombia' },
+  // UK
+  { id:'gbr', d:'M 415,90 L 430,90 L 430,110 L 415,110 Z', label:'Reino Unido' },
+  // Spain
+  { id:'esp', d:'M 405,120 L 455,120 L 455,145 L 405,145 Z', label:'España' },
+  // France
+  { id:'fra', d:'M 420,110 L 460,110 L 465,140 L 420,140 Z', label:'Francia' },
+  // Germany
+  { id:'deu', d:'M 450,95 L 490,95 L 495,125 L 450,130 Z', label:'Alemania' },
+  // Italy
+  { id:'ita', d:'M 455,130 L 490,130 L 495,155 L 475,165 L 460,160 L 455,145 Z', label:'Italia' },
+  // Russia
+  { id:'rus', d:'M 490,55 L 730,40 L 740,100 L 700,110 L 600,115 L 500,115 L 490,90 Z', label:'Rusia' },
+  // China
+  { id:'chn', d:'M 650,115 L 760,115 L 770,170 L 730,185 L 680,190 L 640,175 L 630,150 Z', label:'China' },
+  // Japan
+  { id:'jpn', d:'M 770,115 L 795,115 L 800,145 L 790,155 L 775,155 L 770,140 Z', label:'Japón' },
+  // India
+  { id:'ind', d:'M 610,170 L 670,170 L 680,190 L 670,230 L 640,250 L 610,240 L 600,210 Z', label:'India' },
+  // South Korea
+  { id:'kor', d:'M 755,150 L 770,150 L 772,165 L 756,165 Z', label:'Corea del Sur' },
+  // Australia
+  { id:'aus', d:'M 680,255 L 790,245 L 810,295 L 800,335 L 750,350 L 700,340 L 670,305 L 665,275 Z', label:'Australia' },
+  // South Africa
+  { id:'zaf', d:'M 470,265 L 520,260 L 530,305 L 510,325 L 480,320 L 460,295 Z', label:'Sudáfrica' },
+  // Nigeria
+  { id:'nga', d:'M 435,215 L 475,215 L 480,250 L 440,255 Z', label:'Nigeria' },
+  // Turkey
+  { id:'tur', d:'M 500,140 L 545,138 L 548,158 L 502,160 Z', label:'Turquía' },
+  // Saudi Arabia
+  { id:'sau', d:'M 525,160 L 580,158 L 585,195 L 545,200 L 520,190 Z', label:'Arabia Saudí' },
+  // Brazil interior
+  { id:'per', d:'M 175,235 L 210,230 L 215,270 L 185,275 Z', label:'Perú' },
+  // Sweden
+  { id:'swe', d:'M 460,60 L 480,58 L 485,90 L 463,90 Z', label:'Suecia' },
+  // Poland
+  { id:'pol', d:'M 470,100 L 505,100 L 508,125 L 472,126 Z', label:'Polonia' },
+  // Indonesia
+  { id:'idn', d:'M 700,240 L 760,235 L 765,255 L 755,265 L 700,265 Z', label:'Indonesia' },
+];
+
+// Map country IDs to exposure
+const COUNTRY_EXPOSURE = {
+  usa: 'usa', esp: 'esp', fra: 'eur', deu: 'eur', ita: 'eur', gbr: 'eur',
+  swe: 'eur', pol: 'eur', jpn: 'jpn', chn: 'chn',
+  ind: 'emerg', bra: 'emerg', kor: 'emerg', idn: 'emerg', tur: 'emerg',
+  sau: 'emerg', nga: 'emerg', zaf: 'emerg',
+  aus: 'usa', can: 'usa',
+  rus: null, mex: null, arg: null, col: null, per: null,
+};
+
+function geoColor(regionId) {
+  const r = GEO_REGIONS.find(g => g.id === regionId);
+  if (!r) return '#111419';
+  if (r.pct >= 20) return '#00e5a0';
+  if (r.pct >= 10) return '#4a9eff';
+  if (r.pct >= 5)  return '#2a4a6a';
+  return '#1e2430';
+}
+
+function buildGeoMap() {
+  const wrap = document.getElementById('geoWrap');
+  const tooltip = document.getElementById('geoTooltip');
+  if (!wrap) return;
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '50 30 820 380');
+  svg.style.background = '#0a0c0f';
+  svg.style.borderRadius = '8px';
+
+  // Ocean background
+  const ocean = document.createElementNS(svgNS, 'rect');
+  ocean.setAttribute('x','50'); ocean.setAttribute('y','30');
+  ocean.setAttribute('width','820'); ocean.setAttribute('height','380');
+  ocean.setAttribute('fill','#0d1117');
+  svg.appendChild(ocean);
+
+  SVG_COUNTRIES.forEach(c => {
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', c.d);
+    const regionId = COUNTRY_EXPOSURE[c.id];
+    const fillColor = regionId ? geoColor(regionId) : '#13181f';
+    path.setAttribute('fill', fillColor);
+    path.setAttribute('data-country', c.id);
+    path.setAttribute('data-region', regionId || '');
+    if (regionId) path.classList.add('has-exposure');
+
+    path.addEventListener('mouseenter', (e) => {
+      const region = GEO_REGIONS.find(g => g.id === regionId);
+      if (!region) return;
+      tooltip.style.display = 'block';
+      tooltip.innerHTML = `
+        <h4>${region.flag} ${c.label} — ${region.name}</h4>
+        <div class="gt-row"><span class="gt-label">Exposición cartera</span><span class="gt-val" style="color:${region.color}">${region.pct.toFixed(1)}%</span></div>
+        <div class="gt-row"><span class="gt-label">Valor est.</span><span class="gt-val">€${Math.round(TOTAL_VAL * region.pct/100).toLocaleString('es-ES')}</span></div>
+        <div style="margin-top:6px;font-size:0.65rem;color:var(--muted)">${region.funds.slice(0,3).join(' · ')}</div>
+      `;
+    });
+    path.addEventListener('mousemove', (e) => {
+      const rect = wrap.getBoundingClientRect();
+      let left = e.clientX - rect.left + 12;
+      let top  = e.clientY - rect.top  - 10;
+      if (left + 200 > rect.width) left -= 210;
+      tooltip.style.left = left + 'px';
+      tooltip.style.top  = top  + 'px';
+    });
+    path.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+
+    svg.appendChild(path);
+
+    // Country label
+    if (c.label && ['EE.UU.','España','Japón','China','India','Australia','Brasil'].includes(c.label)) {
+      const bbox = { usa:[188,120], esp:[430,133], jpn:[783,135], chn:[700,150], ind:[640,210], aus:[735,295], bra:[260,250] };
+      const pos = bbox[c.id];
+      if (pos) {
+        const txt = document.createElementNS(svgNS, 'text');
+        txt.setAttribute('x', pos[0]); txt.setAttribute('y', pos[1]);
+        txt.setAttribute('fill','rgba(255,255,255,0.5)');
+        txt.setAttribute('font-size','8');
+        txt.setAttribute('font-family','Syne,sans-serif');
+        txt.setAttribute('text-anchor','middle');
+        txt.setAttribute('pointer-events','none');
+        txt.textContent = c.label;
+        svg.appendChild(txt);
+      }
+    }
+  });
+
+  wrap.innerHTML = '';
+  wrap.appendChild(svg);
+  wrap.appendChild(tooltip);
+
+  // Exposure bars
+  const barsEl = document.getElementById('exposureBars');
+  if (barsEl) {
+    const sorted = [...GEO_REGIONS].sort((a,b) => b.pct - a.pct);
+    barsEl.innerHTML = sorted.map(r => `
+      <div class="exposure-bar-row">
+        <span class="er-flag">${r.flag}</span>
+        <span class="er-name">${r.name}</span>
+        <div class="er-bar"><div class="er-fill" style="width:${(r.pct/35*100).toFixed(1)}%;background:${r.color}"></div></div>
+        <span class="er-pct">${r.pct.toFixed(1)}%</span>
+      </div>
+    `).join('');
+  }
+}
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+// Dashboard starts on Excel upload — no auto-load
+</script>
+</body>
+</html>
