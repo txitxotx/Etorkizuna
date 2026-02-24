@@ -1,502 +1,656 @@
 {
-  "generated": "2026-02-23T15:18:50.312474",
-  "source": "portfolio_cuadro_mandos.xlsx",
+  "generated": "2026-02-23T20:40:38.130115",
+  "source": "cartera_real_gvc.xlsx",
   "assets": [
     {
-      "name": "GVC RF Horizonte",
+      "name": "GVC Gaesco RF Horizonte 2027 Clase A",
       "cat": "RF",
-      "titles": 399.7,
-      "buy_px": 100.08,
-      "invested": 40001.976,
-      "price_now": 115.233,
-      "val": 46058.6301,
-      "gp": 6056.65410000001,
-      "rt": 0.151408872901679,
-      "ytd": 0.0039,
-      "mtd": 0.0015,
-      "rt21": 0.1515,
-      "weight": 0.28631311814756
+      "titles": 399.703704,
+      "buy_px": 100.07,
+      "invested": 40000.0,
+      "price_now": 115.24,
+      "val": 46060.31,
+      "gp": 6060.31,
+      "rt": 0.1515,
+      "ytd": 0.0015,
+      "mtd": 0.0005,
+      "weight": 0.0,
+      "fecha_inicio": "21/06/2023",
+      "notas": "Una compra única. Vence 2027."
     },
     {
-      "name": "GVC RF Flexible CONJUNTA",
+      "name": "GVC Gaesco Renta Fija Flexible FI A",
       "cat": "RF",
-      "titles": 2092.25,
-      "buy_px": 11.06,
-      "invested": 23140.285,
-      "price_now": 11.2946,
-      "val": 23631.12685,
-      "gp": 490.841850000001,
-      "rt": 0.0212115732368897,
+      "titles": 5452.33829,
+      "buy_px": 0.0,
+      "invested": 58131.75,
+      "price_now": 11.3,
+      "val": 61600.59,
+      "gp": 3468.84,
+      "rt": 0.0596,
       "ytd": 0.0092,
       "mtd": 0.0033,
-      "rt21": 0.0195,
-      "weight": 0.146897586816505
+      "weight": 0.0,
+      "fecha_inicio": "21/05/2024",
+      "notas": "Posición en dos cuentas: 3360 (Eneko) + 2092 (conjunta)"
     },
     {
-      "name": "GVC RF Flexible",
+      "name": "GVC Gaesco Constantfons FI",
       "cat": "RF",
-      "titles": 3360.12,
-      "buy_px": 10.42,
-      "invested": 35012.4504,
-      "price_now": 11.2946,
-      "val": 37951.211352,
-      "gp": 2938.760952,
-      "rt": 0.0839347408829174,
-      "ytd": 0.0092,
-      "mtd": 0.0033,
-      "rt21": 0.0843,
-      "weight": 0.235915172380869
-    },
-    {
-      "name": "GVC Constantfons FI",
-      "cat": "RF",
-      "titles": 1523.52,
-      "buy_px": 9.46,
-      "invested": 14412.4992,
-      "price_now": 9.7557,
-      "val": 14863.004064,
-      "gp": 450.504863999997,
-      "rt": 0.031257928118393,
+      "titles": 1523.517112,
+      "buy_px": 9.47,
+      "invested": 14419.56,
+      "price_now": 9.76,
+      "val": 14865.14,
+      "gp": 445.58,
+      "rt": 0.0309,
       "ytd": 0.0026,
       "mtd": 0.001,
-      "rt21": 0.0308,
-      "weight": 0.0923925229509528
+      "weight": 0.0,
+      "fecha_inicio": "21/06/2023",
+      "notas": "Fondo monetario/RF corto plazo"
     },
     {
-      "name": "Pictet China Index",
+      "name": "GVC Gaesco 300 Places World A",
       "cat": "RV",
-      "titles": 5.555,
-      "buy_px": 144.01,
-      "invested": 799.97555,
-      "price_now": 143.63,
-      "val": 797.86465,
-      "gp": -2.1108999999999,
-      "rt": -0.00263870564544117,
-      "ytd": -0.0037,
-      "mtd": -0.0271,
-      "rt21": -0.0027,
-      "weight": 0.00495974620402815
+      "titles": 455.602225,
+      "buy_px": 0.0,
+      "invested": 6205.0,
+      "price_now": 16.84,
+      "val": 7670.48,
+      "gp": 1465.5,
+      "rt": 0.2362,
+      "ytd": 0.038,
+      "mtd": 0.012,
+      "weight": 0.0,
+      "fecha_inicio": "20/12/2021",
+      "notas": "DCA mensual €50-120 desde dic 2021. Posición en 3 cuentas."
     },
     {
-      "name": "GVC Zebra US Small Caps",
+      "name": "GVC Gaesco Japón FI",
       "cat": "RV",
-      "titles": 79.785,
-      "buy_px": 92.0,
-      "invested": 7340.22,
-      "price_now": 100.096,
-      "val": 7986.15936,
-      "gp": 645.93936,
-      "rt": 0.0880000000000001,
+      "titles": 286.13117,
+      "buy_px": 0.0,
+      "invested": 3555.0,
+      "price_now": 15.01,
+      "val": 4296.26,
+      "gp": 741.26,
+      "rt": 0.2085,
+      "ytd": 0.0128,
+      "mtd": 0.0042,
+      "weight": 0.0,
+      "fecha_inicio": "15/04/2024",
+      "notas": "DCA mensual desde abr 2024. Posición en 3 cuentas."
+    },
+    {
+      "name": "GVC Gaesco Value Minu A",
+      "cat": "RV",
+      "titles": 760.432862,
+      "buy_px": 8.09,
+      "invested": 6150.18,
+      "price_now": 9.14,
+      "val": 6953.1,
+      "gp": 802.92,
+      "rt": 0.1306,
+      "ytd": 0.0,
+      "mtd": 0.0,
+      "weight": 0.0,
+      "fecha_inicio": "05/12/2025",
+      "notas": "Compra única diciembre 2025"
+    },
+    {
+      "name": "GVC Gaesco Zebra US Small Cap",
+      "cat": "RV",
+      "titles": 79.785203,
+      "buy_px": 0.0,
+      "invested": 7340.0,
+      "price_now": 100.34,
+      "val": 8005.43,
+      "gp": 665.43,
+      "rt": 0.0907,
       "ytd": 0.0405,
       "mtd": 0.027,
-      "rt21": 0.088,
-      "weight": 0.0496441640452724
+      "weight": 0.0,
+      "fecha_inicio": "16/06/2025",
+      "notas": "DCA mensual desde jun 2025"
     },
     {
-      "name": "GVC Value Minu A",
+      "name": "GVC Gaesco Global Equity DS A",
       "cat": "RV",
-      "titles": 760.433,
-      "buy_px": 8.09,
-      "invested": 6151.90297,
-      "price_now": 9.12465,
-      "val": 6938.68497345,
-      "gp": 786.78200345,
-      "rt": 0.127892459826947,
-      "ytd": 0.0806,
-      "mtd": 0.0655,
-      "rt21": 0.1282,
-      "weight": 0.0431327750364875
+      "titles": 116.746223,
+      "buy_px": 0.0,
+      "invested": 1800.0,
+      "price_now": 17.61,
+      "val": 2055.96,
+      "gp": 255.96,
+      "rt": 0.1422,
+      "ytd": 0.0142,
+      "mtd": 0.0049,
+      "weight": 0.0,
+      "fecha_inicio": "20/06/2025",
+      "notas": "DCA mensual desde jun 2025"
     },
     {
-      "name": "GVC VIF Clase A FI",
+      "name": "GVC Gaesco Small Caps A",
       "cat": "RV",
-      "titles": 173.524,
+      "titles": 91.886381,
+      "buy_px": 0.0,
+      "invested": 1440.0,
+      "price_now": 16.68,
+      "val": 1532.9,
+      "gp": 92.9,
+      "rt": 0.0645,
+      "ytd": 0.0064,
+      "mtd": 0.0022,
+      "weight": 0.0,
+      "fecha_inicio": "20/06/2025",
+      "notas": "DCA mensual desde jun 2025"
+    },
+    {
+      "name": "GVC Gaesco Emergentfo",
+      "cat": "RV",
+      "titles": 4.69524,
+      "buy_px": 238.55,
+      "invested": 1120.0,
+      "price_now": 268.04,
+      "val": 1258.51,
+      "gp": 138.51,
+      "rt": 0.1237,
+      "ytd": 0.0124,
+      "mtd": 0.0037,
+      "weight": 0.0,
+      "fecha_inicio": "20/06/2025",
+      "notas": "DCA mensual mercados emergentes"
+    },
+    {
+      "name": "GVC Gaesco V.I.F Clase A FI",
+      "cat": "RV",
+      "titles": 173.523651,
       "buy_px": 8.64,
-      "invested": 1499.24736,
-      "price_now": 8.9725,
-      "val": 1556.94409,
-      "gp": 57.6967299999999,
-      "rt": 0.0384837962962962,
-      "ytd": 0.0229,
-      "mtd": -0.0244,
-      "rt21": 0.038,
-      "weight": 0.00967839287059724
+      "invested": 1500.0,
+      "price_now": 8.98,
+      "val": 1558.79,
+      "gp": 58.79,
+      "rt": 0.0392,
+      "ytd": 0.0039,
+      "mtd": 0.0013,
+      "weight": 0.0,
+      "fecha_inicio": "20/06/2025",
+      "notas": "Value investing fund"
     },
     {
-      "name": "GVC Small Caps A FI",
+      "name": "Next Tier GVC Gaesco SCR",
+      "cat": "SCR",
+      "titles": 6000.0,
+      "buy_px": 1.0,
+      "invested": 6000.0,
+      "price_now": 1.0,
+      "val": 6000.0,
+      "gp": 0.0,
+      "rt": 0.0,
+      "ytd": 0.0,
+      "mtd": 0.0,
+      "weight": 0.0,
+      "fecha_inicio": "06/05/2025",
+      "notas": "Capital riesgo – precio no cotiza en mercado secundario"
+    },
+    {
+      "name": "Fidelity MSCI World UCITS ETF",
       "cat": "RV",
-      "titles": 91.886,
-      "buy_px": 15.67,
-      "invested": 1439.85362,
-      "price_now": 16.772,
-      "val": 1541.111992,
-      "gp": 101.258372,
-      "rt": 0.0703254626675176,
-      "ytd": 0.0584,
-      "mtd": 0.0338,
-      "rt21": 0.0702,
-      "weight": 0.00957997619308521
+      "titles": 94.226,
+      "buy_px": 0.0,
+      "invested": 1100.0,
+      "price_now": 0,
+      "val": 1100.0,
+      "gp": 0.0,
+      "rt": 0.0,
+      "ytd": 0.0,
+      "mtd": 0.0,
+      "weight": 0.0,
+      "fecha_inicio": "28/03/2025",
+      "notas": "DCA €100/mes ISIN IE00BYX5NX33 – actualizar precio hoy"
     },
     {
-      "name": "GVC Japón CONJUNTA",
+      "name": "Fidelity MSCI EM UCITS ETF",
       "cat": "RV",
-      "titles": 83.012,
-      "buy_px": 13.01,
-      "invested": 1079.98612,
-      "price_now": 15.123,
-      "val": 1255.390476,
-      "gp": 175.404356,
-      "rt": 0.162413528055342,
-      "ytd": 0.1145,
-      "mtd": 0.0791,
-      "rt21": 0.1624,
-      "weight": 0.00780385263078655
+      "titles": 81.6,
+      "buy_px": 0.0,
+      "invested": 1100.0,
+      "price_now": 0,
+      "val": 1100.0,
+      "gp": 0.0,
+      "rt": 0.0,
+      "ytd": 0.0,
+      "mtd": 0.0,
+      "weight": 0.0,
+      "fecha_inicio": "28/03/2025",
+      "notas": "DCA €100/mes ISIN IE00BYX5MX67 – actualizar precio hoy"
     },
     {
-      "name": "GVC Japón A FI",
-      "cat": "RV",
-      "titles": 187.792,
-      "buy_px": 12.25,
-      "invested": 2300.452,
-      "price_now": 15.123,
-      "val": 2839.978416,
-      "gp": 539.526416,
-      "rt": 0.234530612244898,
-      "ytd": 0.1283,
-      "mtd": 0.0841,
-      "rt21": 0.2348,
-      "weight": 0.0176540872794375
-    },
-    {
-      "name": "GVC Global Equity DS A",
-      "cat": "RV",
-      "titles": 116.746,
-      "buy_px": 15.42,
-      "invested": 1800.22332,
-      "price_now": 17.719,
-      "val": 2068.622374,
-      "gp": 268.399054,
-      "rt": 0.149092088197147,
-      "ytd": 0.0834,
-      "mtd": 0.0412,
-      "rt21": 0.1492,
-      "weight": 0.0128591258768191
-    },
-    {
-      "name": "GVC Emergentfond FI",
-      "cat": "RV",
-      "titles": 5.264,
-      "buy_px": 239.34,
-      "invested": 1259.88576,
-      "price_now": 267.396,
-      "val": 1407.572544,
-      "gp": 147.686784,
-      "rt": 0.117222361494109,
-      "ytd": 0.0754,
-      "mtd": 0.021,
-      "rt21": 0.1172,
-      "weight": 0.00874985823973809
-    },
-    {
-      "name": "GVC 300 Places CONJUNTA",
-      "cat": "RV",
-      "titles": 69.146,
-      "buy_px": 15.62,
-      "invested": 1080.06052,
-      "price_now": 17.0496,
-      "val": 1178.9116416,
-      "gp": 98.8511216000002,
-      "rt": 0.0915236875800258,
-      "ytd": 0.035,
-      "mtd": 0.0449,
-      "rt21": 0.0916,
-      "weight": 0.00732843915231762
-    },
-    {
-      "name": "GVC 300 Places Worldwide",
-      "cat": "RV",
-      "titles": 384.677,
-      "buy_px": 13.26,
-      "invested": 5100.81702,
-      "price_now": 17.0496,
-      "val": 6558.5889792,
-      "gp": 1457.7719592,
-      "rt": 0.28579185520362,
-      "ytd": 0.0375,
-      "mtd": 0.0481,
-      "rt21": 0.286,
-      "weight": 0.0407699937494011
-    },
-    {
-      "name": "Fidelity S&P 500 Index",
-      "cat": "RV",
-      "titles": 81.497,
-      "buy_px": 13.5,
-      "invested": 1100.2095,
-      "price_now": 14.3579,
-      "val": 1170.1257763,
-      "gp": 69.9162763000002,
-      "rt": 0.0635481481481483,
-      "ytd": -0.0038,
-      "mtd": 0.0007,
-      "rt21": 0.0638,
-      "weight": 0.00727382379610303
-    },
-    {
-      "name": "Fidelity MSCI World",
-      "cat": "RV",
-      "titles": 94.235,
-      "buy_px": 11.67,
-      "invested": 1099.72245,
-      "price_now": 12.6638,
-      "val": 1193.373193,
-      "gp": 93.6507429999999,
-      "rt": 0.0851585261353898,
-      "ytd": 0.0161,
-      "mtd": 0.0122,
-      "rt21": 0.0849,
-      "weight": 0.00741833613504584
-    },
-    {
-      "name": "XRP",
-      "cat": "CR",
-      "titles": 40.816,
-      "buy_px": 2.12,
-      "invested": 86.52992,
-      "price_now": 1.38669,
-      "val": 56.59913904,
-      "gp": -29.93078096,
-      "rt": -0.345900943396226,
-      "ytd": -0.2473,
-      "mtd": -0.1455,
-      "rt21": -0.4435,
-      "weight": 0.000351835822034353
-    },
-    {
-      "name": "Sui",
-      "cat": "CR",
-      "titles": 129.43,
-      "buy_px": 2.65,
-      "invested": 342.9895,
-      "price_now": 0.91928,
-      "val": 118.9824104,
-      "gp": -224.0070896,
-      "rt": -0.653101886792453,
-      "ytd": -0.3455,
-      "mtd": -0.19,
-      "rt21": -0.7051,
-      "weight": 0.000739627402125811
-    },
-    {
-      "name": "Solana",
-      "cat": "CR",
-      "titles": 10.367,
-      "buy_px": 144.69,
-      "invested": 1500.00123,
-      "price_now": 70.61756,
-      "val": 732.09224452,
-      "gp": -767.90898548,
-      "rt": -0.511938903863432,
-      "ytd": -0.3344,
-      "mtd": -0.2061,
-      "rt21": -0.5119,
-      "weight": 0.00455088683369606
-    },
-    {
-      "name": "Pump.fun",
-      "cat": "CR",
-      "titles": 16949.15,
-      "buy_px": 0.01,
-      "invested": 169.4915,
-      "price_now": 0.00201,
-      "val": 34.0677915,
-      "gp": -135.4237085,
-      "rt": -0.799,
-      "ytd": 0.0485,
-      "mtd": -0.2445,
-      "rt21": -0.6636,
-      "weight": 0.000211774766022968
-    },
-    {
-      "name": "Pudgy Penguins",
-      "cat": "CR",
-      "titles": 3389.83,
-      "buy_px": 0.03,
-      "invested": 101.6949,
-      "price_now": 0.00653,
-      "val": 22.1355899,
-      "gp": -79.5593101,
-      "rt": -0.782333333333333,
-      "ytd": -0.2472,
-      "mtd": -0.1511,
-      "rt21": -0.7787,
-      "weight": 0.000137600917624874
-    },
-    {
-      "name": "Linea",
-      "cat": "CR",
-      "titles": 20223.6,
-      "buy_px": 0.01,
-      "invested": 202.236,
-      "price_now": 0.00339,
-      "val": 68.558004,
-      "gp": -133.677996,
-      "rt": -0.661,
-      "ytd": -0.4656,
-      "mtd": -0.2585,
-      "rt21": -0.7745,
-      "weight": 0.000426175417214871
-    },
-    {
-      "name": "Kaspa",
-      "cat": "CR",
-      "titles": 1261.0,
-      "buy_px": 0.07,
-      "invested": 88.27,
-      "price_now": 0.03018,
-      "val": 38.05698,
-      "gp": -50.21302,
-      "rt": -0.568857142857143,
-      "ytd": -0.2977,
-      "mtd": -0.076,
-      "rt21": -0.6195,
-      "weight": 0.000236572659400031
-    },
-    {
-      "name": "Bitcoin",
-      "cat": "CR",
-      "titles": 0.014,
-      "buy_px": 92864.95,
-      "invested": 1300.1093,
-      "price_now": 57160.49,
-      "val": 800.24686,
-      "gp": -499.86244,
-      "rt": -0.384477243567137,
-      "ytd": -0.2336,
-      "mtd": -0.1382,
-      "rt21": -0.3845,
-      "weight": 0.00497455467687464
+      "name": "Fidelity (LU0625737910)",
+      "cat": "RF",
+      "titles": 5.557,
+      "buy_px": 0.0,
+      "invested": 800.0,
+      "price_now": 0,
+      "val": 800.0,
+      "gp": 0.0,
+      "rt": 0.0,
+      "ytd": 0.0,
+      "mtd": 0.0,
+      "weight": 0.0,
+      "fecha_inicio": "01/07/2025",
+      "notas": "DCA €100/mes ISIN LU0625737910 – actualizar precio hoy"
     }
   ],
   "inputs": {
     "rf": 0.02,
     "market_premium": 0.055,
-    "inflation": 0.028,
+    "inflation": 0.025,
     "tax_rate": 0.19,
     "fee_rf": 0.005,
     "fee_rv": 0.015,
-    "fee_cr": 0.001,
     "target_return": 0.08,
     "target_vol": 0.12,
     "target_sharpe": 0.8,
-    "update_date": "19/02/2026",
-    "horizon_years": 10.0,
-    "rebalance_freq": "Semestral",
     "target_weight_rf": 0.65,
     "target_weight_rv": 0.33,
-    "target_weight_cr": 0.02,
-    "exp_ret_rf": 0.07,
-    "exp_ret_rv": 0.11,
-    "exp_ret_cr": 0.18,
+    "target_weight_scr": 0.02,
+    "exp_ret_rf": 0.065,
+    "exp_ret_rv": 0.12,
     "exp_vol_rf": 0.04,
     "exp_vol_rv": 0.15,
-    "exp_vol_cr": 0.65,
-    "exp_return_portfolio": 0.0854,
-    "exp_vol_portfolio": 0.0574042681339985,
-    "sharpe_portfolio": 1.13928810741628
+    "sharpe_rf": 0.0,
+    "sharpe_rv": 0.0,
+    "exp_return_portfolio": 0.08185,
+    "exp_vol_portfolio": 0.055912878659571806,
+    "sharpe_portfolio": 1.1061852203421083,
+    "horizon_years": 10
   },
   "summary": {
-    "total_inv": 148411.09,
-    "total_val": 160868.04,
-    "total_gp": 12456.95,
-    "total_rt": 0.083935,
-    "updated_at": "23/02/2026 15:18",
+    "total_inv": 150661.49,
+    "total_val": 164857.47,
+    "total_gp": 14195.98,
+    "total_rt": 0.094224,
+    "updated_at": "23/02/2026 20:40",
     "best_asset": {
-      "name": "GVC 300 Places Worldwide",
-      "rt": 0.28579185520362
+      "name": "GVC Gaesco 300 Places World A",
+      "rt": 0.2362
     },
     "worst_asset": {
-      "name": "Pump.fun",
-      "rt": -0.799
+      "name": "Next Tier GVC Gaesco SCR",
+      "rt": 0.0
     },
     "cats": {
       "RF": {
-        "inv": 112567.21,
-        "val": 122503.97,
-        "gp": 9936.76,
-        "rt": 0.088274,
-        "ytd": 0.006407,
-        "mtd": 0.002344,
-        "weight": 0.761518,
+        "inv": 113351.31,
+        "val": 123326.04,
+        "gp": 9974.73,
+        "rt": 0.087998,
+        "ytd": 0.005469,
+        "mtd": 0.001956,
+        "weight": 0.748077,
         "count": 4
       },
       "RV": {
-        "inv": 32052.56,
-        "val": 36493.33,
-        "gp": 4440.77,
-        "rt": 0.138547,
-        "ytd": 0.057384,
-        "mtd": 0.041084,
-        "weight": 0.226853,
-        "count": 13
+        "inv": 31310.18,
+        "val": 35531.43,
+        "gp": 4221.25,
+        "rt": 0.13482,
+        "ytd": 0.020584,
+        "mtd": 0.009748,
+        "weight": 0.215528,
+        "count": 10
       },
-      "CR": {
-        "inv": 3791.32,
-        "val": 1870.74,
-        "gp": -1920.58,
-        "rt": -0.506573,
-        "ytd": -0.285408,
-        "mtd": -0.173519,
-        "weight": 0.011629,
-        "count": 8
+      "SCR": {
+        "inv": 6000.0,
+        "val": 6000.0,
+        "gp": 0.0,
+        "rt": 0.0,
+        "ytd": 0.0,
+        "mtd": 0.0,
+        "weight": 0.036395,
+        "count": 1
       }
     }
   },
-  "scenarios": [
+  "history": [
     {
-      "label": "🟢 Escenario favorable",
-      "shock_rf": 0.06,
-      "shock_rv": 0.2,
-      "shock_cr": 0.4,
-      "impact": 0.0957132296575745,
-      "val_est": 176265.239493724,
-      "loss_est": 15397.199642814
+      "date": "21/06/2023",
+      "val": 54000.0,
+      "inv": 54419.56,
+      "gp": -419.56,
+      "rt": -0.0077,
+      "w_rf": 0.85,
+      "w_rv": 0.1,
+      "notes": "Primeras posiciones RF Horizonte + Constantfons"
     },
     {
-      "label": "⚪ Escenario base",
-      "shock_rf": 0.04,
-      "shock_rv": 0.1,
-      "shock_cr": 0.0,
-      "impact": 0.0531459931327474,
-      "val_est": 169417.531592105,
-      "loss_est": 8549.491741195
+      "date": "31/12/2023",
+      "val": 62000.0,
+      "inv": 60000.0,
+      "gp": 2000.0,
+      "rt": 0.033,
+      "w_rf": 0.8,
+      "w_rv": 0.15,
+      "notes": "Fin de año 2023"
     },
     {
-      "label": "🟡 Corrección moderada",
-      "shock_rf": -0.04,
-      "shock_rv": -0.15,
-      "shock_cr": -0.3,
-      "impact": -0.0679773302417015,
-      "val_est": 149932.65998063,
-      "loss_est": -10935.3798702805
+      "date": "21/05/2024",
+      "val": 98000.0,
+      "inv": 95000.0,
+      "gp": 3000.0,
+      "rt": 0.032,
+      "w_rf": 0.78,
+      "w_rv": 0.17,
+      "notes": "Entra GVC RF Flexible Eneko"
     },
     {
-      "label": "🔴 Mercado bajista",
-      "shock_rf": -0.08,
-      "shock_rv": -0.3,
-      "shock_cr": -0.6,
-      "impact": -0.135954660483403,
-      "val_est": 138997.280110349,
-      "loss_est": -21870.759740561
+      "date": "31/12/2024",
+      "val": 140000.0,
+      "inv": 128000.0,
+      "gp": 12000.0,
+      "rt": 0.094,
+      "w_rf": 0.72,
+      "w_rv": 0.22,
+      "notes": "Fin de año 2024"
     },
     {
-      "label": "🚨 Crisis severa",
-      "shock_rf": -0.12,
-      "shock_rv": -0.5,
-      "shock_cr": -0.8,
-      "impact": -0.214111716436061,
-      "val_est": 126424.307718727,
-      "loss_est": -34443.732132183
+      "date": "20/06/2025",
+      "val": 148000.0,
+      "inv": 133000.0,
+      "gp": 15000.0,
+      "rt": 0.113,
+      "w_rf": 0.68,
+      "w_rv": 0.25,
+      "notes": "Apertura cuenta conjunta GB.70007162"
+    },
+    {
+      "date": "05/12/2025",
+      "val": 156000.0,
+      "inv": 142000.0,
+      "gp": 14000.0,
+      "rt": 0.099,
+      "w_rf": 0.65,
+      "w_rv": 0.28,
+      "notes": "Entra GVC Value Minu"
+    },
+    {
+      "date": "23/02/2026",
+      "val": 164857.47,
+      "inv": 150661.49,
+      "gp": 14195.98000000001,
+      "rt": 0.09422434359304432,
+      "w_rf": 0.748077,
+      "w_rv": 0.215528,
+      "notes": "Auto-snapshot"
     }
-  ]
+  ],
+  "asset_history": {
+    "GVC Gaesco RF Horizonte 2027 A": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": 0.101
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.1326
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.1515
+      }
+    ],
+    "GVC Gaesco RF Flexible FI A": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": null
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.0219
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.0703
+      }
+    ],
+    "GVC Gaesco Constantfons FI": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": 0.018
+      },
+      {
+        "date": "31/12/2024",
+        "rt": 0.025
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.028
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.0309
+      }
+    ],
+    "GVC Gaesco 300 Places World A": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": 0.08
+      },
+      {
+        "date": "31/12/2024",
+        "rt": 0.18
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.22
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.2702
+      }
+    ],
+    "GVC Gaesco Japón FI": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": null
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.18
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.2258
+      }
+    ],
+    "GVC Gaesco Value Minu A": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": null
+      },
+      {
+        "date": "20/06/2025",
+        "rt": null
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.1306
+      }
+    ],
+    "GVC Gaesco Zebra US Small Cap": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": null
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.08
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.0907
+      }
+    ],
+    "GVC Gaesco Global Equity DS A": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": null
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.1
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.1422
+      }
+    ],
+    "GVC Gaesco Small Caps A": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": null
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.04
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.0645
+      }
+    ],
+    "GVC Gaesco Emergentfo": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": null
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.08
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.1237
+      }
+    ],
+    "GVC Gaesco V.I.F Clase A FI": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": null
+      },
+      {
+        "date": "20/06/2025",
+        "rt": 0.02
+      },
+      {
+        "date": "22/02/2026",
+        "rt": 0.0392
+      }
+    ],
+    "Next Tier GVC SCR": [
+      {
+        "date": "21/06/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2023",
+        "rt": null
+      },
+      {
+        "date": "31/12/2024",
+        "rt": null
+      },
+      {
+        "date": "20/06/2025",
+        "rt": null
+      },
+      {
+        "date": "22/02/2026",
+        "rt": null
+      }
+    ]
+  },
+  "scenarios": []
 }

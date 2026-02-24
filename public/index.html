@@ -371,7 +371,7 @@ tbody td { padding: 9px 12px; white-space: nowrap; }
   </style>
 
   <div class="upload-card">
-    <div class="logo-mark">◈ Portfolio MAIKO</div>
+    <div class="logo-mark">◈ Portfolio Dashboard</div>
     <div class="drop-zone" id="dropZone"
          ondragover="handleDragOver(event)"
          ondragleave="handleDragLeave(event)"
@@ -429,8 +429,8 @@ tbody td { padding: 9px 12px; white-space: nowrap; }
 <!-- HEADER -->
 <header>
   <div class="header-left">
-    <h1>PORTAFOLIO <span>MAIKO</span></h1>
-    <p>MAIKO INC. · Análisis Avanzado · Febrero 2026</p>
+    <h1>PORTFOLIO <span>DASHBOARD</span></h1>
+    <p>GVC Gaesco · Análisis Avanzado · Febrero 2026</p>
   </div>
   <div class="header-right">
     <div class="total-value">€167,020.52</div>
@@ -923,6 +923,17 @@ tbody td { padding: 9px 12px; white-space: nowrap; }
     <canvas id="optimizedChart" height="160"></canvas>
   </div>
 
+  <div class="chart-card mb18">
+    <div class="card-header">
+      <span class="card-title">📈 Rentabilidad histórica por activo</span>
+      <span class="card-badge">Acumulada desde primera compra</span>
+    </div>
+    <canvas id="assetHistoryLineChart" height="180"></canvas>
+    <div style="margin-top:10px;font-size:0.7rem;color:#6b7a8d;font-family:'DM Mono',monospace;">
+      Los datos históricos se construyen automáticamente desde la hoja 📉 del Excel cada vez que añades un snapshot en el Histórico.
+    </div>
+  </div>
+
 </div>
 </div><!-- end container -->
 
@@ -934,6 +945,8 @@ let ASSETS = [];
 let PORTFOLIO_INPUTS = {};
 let PORTFOLIO_SUMMARY = {};
 let PORTFOLIO_SCENARIOS = [];
+let PORTFOLIO_HISTORY = [];
+let ASSET_HISTORY = {};
 
 // ── Drag & drop handlers ──────────────────────────────────────────────────────
 function handleDragOver(e) {
@@ -1145,9 +1158,11 @@ function processFile(file) {
         inv: a.invested, val: a.val, gp: a.gp,
         rt: a.rt, ytd: a.ytd, mtd: a.mtd, weight: a.weight,
       }));
-      PORTFOLIO_INPUTS   = inputs;
-      PORTFOLIO_SUMMARY  = summary;
+      PORTFOLIO_INPUTS    = inputs;
+      PORTFOLIO_SUMMARY   = summary;
       PORTFOLIO_SCENARIOS = scenarios;
+      PORTFOLIO_HISTORY   = data.history   || [];
+      ASSET_HISTORY       = data.asset_history || {};
 
       setProgress(95);
       document.getElementById('loadingMsg').textContent = 'Renderizando dashboard…';
@@ -1225,8 +1240,8 @@ function bootDashboard() {
   renderAssetsTable();
 }
 
-const CAT_COLOR = { RF:'#00e5a0', RV:'#4a9eff', CR:'#f5c518' };
-const CAT_NAME  = { RF:'Renta Fija', RV:'Renta Variable', CR:'Criptomonedas' };
+const CAT_COLOR = { RF:'#00e5a0', RV:'#4a9eff', CR:'#f5c518', SCR:'#f5c518' };
+const CAT_NAME  = { RF:'Renta Fija', RV:'Renta Variable', CR:'Criptomonedas', SCR:'Capital Riesgo' };
 let TOTAL_VAL = 167020.52; // updated from data.json on load
 
 Chart.defaults.color = '#6b7a8d';
@@ -1346,6 +1361,43 @@ const overviewTFData = [
 ];
 
 function buildOverviewLine(tfIdx) {
+  // If we have real history from the Excel, use it
+  if (PORTFOLIO_HISTORY && PORTFOLIO_HISTORY.length >= 2) {
+    const hist = PORTFOLIO_HISTORY;
+    const labels = hist.map(h => h.date);
+    const valData  = hist.map(h => +(h.val||0).toFixed(2));
+    const invData  = hist.map(h => +(h.inv||0).toFixed(2));
+    const rtData   = hist.map(h => +((h.rt||0)*100).toFixed(2));
+
+    mkChart('overviewLineChart',{
+      type:'line',
+      data:{
+        labels,
+        datasets:[
+          {label:'Valor Total €', data:valData, borderColor:'#00e5a0', backgroundColor:'rgba(0,229,160,0.08)',
+           borderWidth:2.5, pointRadius:4, pointHoverRadius:6, tension:0.3, yAxisID:'y'},
+          {label:'Total Invertido €', data:invData, borderColor:'#4a9eff', backgroundColor:'rgba(74,158,255,0.05)',
+           borderWidth:2, borderDash:[6,3], pointRadius:3, tension:0.3, yAxisID:'y'},
+        ]
+      },
+      options:{
+        responsive:true,
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{position:'bottom',labels:{padding:14,boxWidth:10,font:{size:10}}},
+          tooltip:{callbacks:{
+            label:ctx=>`${ctx.dataset.label}: €${ctx.parsed.y.toLocaleString('es-ES',{maximumFractionDigits:0})}`
+          }}
+        },
+        scales:{
+          y:{grid:{color:'#1e2430'},ticks:{callback:v=>'€'+Math.round(v/1000)+'k'}},
+          x:{grid:{display:false},ticks:{maxTicksLimit:8}}
+        }
+      }
+    });
+    return;
+  }
+  // Fallback: use static timeframe data
   const d = overviewTFData[tfIdx];
   mkChart('overviewLineChart',{
     type:'line',
@@ -1360,6 +1412,55 @@ function buildOverviewLine(tfIdx) {
       scales:{
         y:{grid:{color:'#1e2430'},ticks:{callback:v=>v.toFixed(1)}},
         x:{grid:{display:false},ticks:{maxTicksLimit:10}}
+      }
+    }
+  });
+}
+
+// ── Historical performance by individual asset ─────────────────────────────
+function buildAssetHistoryChart() {
+  if (!ASSET_HISTORY || Object.keys(ASSET_HISTORY).length === 0) return;
+
+  const names  = Object.keys(ASSET_HISTORY);
+  const colors = ['#00e5a0','#4a9eff','#f5c518','#ff6b35','#ff4757',
+                  '#a855f7','#06b6d4','#84cc16','#f97316','#ec4899',
+                  '#64748b','#0ea5e9'];
+
+  // Collect all unique dates
+  const allDates = [...new Set(names.flatMap(n => ASSET_HISTORY[n].map(p=>p.date)))].sort();
+
+  const datasets = names.map((name, i) => {
+    const hist = ASSET_HISTORY[name];
+    const data = allDates.map(dt => {
+      const pt = hist.find(p=>p.date===dt);
+      return (pt && pt.rt !== null) ? +(pt.rt*100).toFixed(2) : null;
+    });
+    return {
+      label: name.replace('GVC Gaesco ','').replace('GVC GAESCO ','').slice(0,22),
+      data,
+      borderColor: colors[i % colors.length],
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      tension: 0.3,
+      spanGaps: true,
+    };
+  });
+
+  mkChart('assetHistoryLineChart',{
+    type:'line',
+    data:{ labels:allDates, datasets },
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'bottom',labels:{padding:10,boxWidth:8,font:{size:9}}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y!==null?ctx.parsed.y+'%':'—'}`}}
+      },
+      scales:{
+        y:{grid:{color:'#1e2430'},ticks:{callback:v=>v+'%'},title:{display:true,text:'Rent. acum. %'}},
+        x:{grid:{display:false},ticks:{maxTicksLimit:8}}
       }
     }
   });
@@ -1387,7 +1488,7 @@ function updateOverviewCharts() {
     mkChart('donutChart',{type:'doughnut',data:{labels:['Renta Fija','Renta Variable','Criptomonedas'],datasets:[{data:[
     (PORTFOLIO_SUMMARY.cats?.RF?.val||122503.95),
     (PORTFOLIO_SUMMARY.cats?.RV?.val||36493.45),
-    (PORTFOLIO_SUMMARY.cats?.CR?.val||1801.73)
+    (PORTFOLIO_SUMMARY.cats?.SCR?.val || PORTFOLIO_SUMMARY.cats?.CR?.val || 6000)
   ],backgroundColor:['#00e5a0','#4a9eff','#f5c518'],borderColor:'#0a0c0f',borderWidth:3,hoverOffset:8}]},options:{responsive:true,cutout:'66%',plugins:{legend:{position:'bottom',labels:{padding:14,font:{size:10},boxWidth:8}},tooltip:{callbacks:{label:ctx=>`€${ctx.parsed.toLocaleString('es-ES',{maximumFractionDigits:0})} (${(ctx.parsed/TOTAL_VAL*100).toFixed(1)}%)`}}}}});
   } else {
     const g=fa;
