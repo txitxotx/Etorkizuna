@@ -379,8 +379,8 @@ tbody td { padding: 9px 12px; white-space: nowrap; }
       <span class="icon">📊</span>
       <h2>Carga tu Excel para empezar</h2>
       <p>
-        Arrastra <strong style="color:#e8ecf4">portfolio_cuadro_mandos.xlsx</strong><br>
-        o haz clic para seleccionarlo
+        Arrastra <strong style="color:#e8ecf4">cartera_real_gvc.xlsx</strong><br>
+        o cualquier Excel con la estructura de cartera
       </p>
       <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
         ▲ &nbsp;Seleccionar archivo
@@ -1024,29 +1024,63 @@ function processFile(file) {
       const toPct= (v, d=0) => { const f = toF(v, d); return Math.abs(f) > 1.5 ? f/100 : f; };
       const toS  = (v) => v !== null && v !== undefined ? String(v).trim() : '';
 
-      // ── Read assets (rows 5-29, cols A-N) ─────────────────────────────────
-      const assets = [];
-      const ALPHA  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      for (let row = 5; row <= 29; row++) {
-        const name = toS(cv(wsAct, `C${row}`));
-        const cat  = toS(cv(wsAct, `B${row}`));
-        if (!name || !cat) continue;
+      // ── Read assets — auto-detect column layout ─────────────────────────────
+      // New layout (cartera_real_gvc.xlsx): A=#, B=Name, C=Cat, D=Account,
+      //   E=Títulos, F=PrecioCoste, G=Invertido, H=PrecioHoy, I=ValActual,
+      //   J=GP, K=RT%, L=YTD, M=MTD, N=Peso
+      // Old layout (portfolio_cuadro_mandos.xlsx): B=Name, C=Cat, D=Títulos,
+      //   E=PrecioCoste, F=Invertido, G=PrecioHoy, H=ValActual, I=GP, J=RT%,
+      //   K=YTD, L=MTD
 
-        const titles   = toF(cv(wsAct, `D${row}`));
-        const buyPx    = toF(cv(wsAct, `E${row}`));
-        const invested = toF(cv(wsAct, `F${row}`)) || titles * buyPx;
-        const priceNow = toF(cv(wsAct, `G${row}`));
-        const currVal  = toF(cv(wsAct, `H${row}`)) || titles * priceNow;
-        const gp       = toF(cv(wsAct, `I${row}`)) || (currVal - invested);
-        const rt       = toPct(cv(wsAct, `J${row}`));
-        const ytd      = toPct(cv(wsAct, `K${row}`));
-        const mtd      = toPct(cv(wsAct, `L${row}`));
-        const rt21     = toPct(cv(wsAct, `M${row}`));
+      // Auto-detect: if col C row 5 is RF/RV/CR/SCR → old layout; if col C is the cat → new
+      const _testCatNew = toS(cv(wsAct, 'C5'));
+      const _testCatOld = toS(cv(wsAct, 'B5'));
+      const VALID_CATS = ['RF','RV','CR','SCR'];
+      // new layout: col C = category code; old layout: col C = name text
+      const useNewLayout = VALID_CATS.includes(_testCatNew) || _testCatNew === '';
+
+      const assets = [];
+      for (let row = 5; row <= 55; row++) {
+        let name, cat, titles, buyPx, invested, priceNow, currVal, gp, rt, ytd, mtd;
+
+        if (useNewLayout) {
+          // NEW: A=#, B=Name, C=Cat, D=Account, E=Títulos, F=BuyPx, G=Inv, H=PriceNow, I=Val, J=GP, K=RT, L=YTD, M=MTD
+          name     = toS(cv(wsAct, `B${row}`));
+          cat      = toS(cv(wsAct, `C${row}`));
+          if (!name || name === 'TOTAL CARTERA' || name === 'Nombre del Activo') continue;
+          if (!VALID_CATS.includes(cat)) continue;
+          titles   = toF(cv(wsAct, `E${row}`));
+          buyPx    = toF(cv(wsAct, `F${row}`));
+          invested = toF(cv(wsAct, `G${row}`)) || titles * buyPx;
+          priceNow = toF(cv(wsAct, `H${row}`));
+          currVal  = toF(cv(wsAct, `I${row}`)) || (priceNow ? titles * priceNow : invested);
+          gp       = toF(cv(wsAct, `J${row}`)) || (currVal - invested);
+          rt       = toPct(cv(wsAct, `K${row}`));
+          ytd      = toPct(cv(wsAct, `L${row}`));
+          mtd      = toPct(cv(wsAct, `M${row}`));
+        } else {
+          // OLD: B=Name, C=Cat, D=Títulos, E=BuyPx, F=Inv, G=PriceNow, H=Val, I=GP, J=RT, K=YTD, L=MTD
+          name     = toS(cv(wsAct, `C${row}`));
+          cat      = toS(cv(wsAct, `B${row}`));
+          if (!name || !cat || !VALID_CATS.includes(cat)) continue;
+          titles   = toF(cv(wsAct, `D${row}`));
+          buyPx    = toF(cv(wsAct, `E${row}`));
+          invested = toF(cv(wsAct, `F${row}`)) || titles * buyPx;
+          priceNow = toF(cv(wsAct, `G${row}`));
+          currVal  = toF(cv(wsAct, `H${row}`)) || titles * priceNow;
+          gp       = toF(cv(wsAct, `I${row}`)) || (currVal - invested);
+          rt       = toPct(cv(wsAct, `J${row}`));
+          ytd      = toPct(cv(wsAct, `K${row}`));
+          mtd      = toPct(cv(wsAct, `L${row}`));
+        }
+        if (!name || !VALID_CATS.includes(cat)) continue;
+        if (invested === 0 && currVal === 0) continue; // skip empty rows
 
         assets.push({ name, cat, titles, buy_px: buyPx, invested, price_now: priceNow,
-          val: currVal, gp, rt, ytd, mtd, rt21, weight: 0 });
+          val: currVal || invested, gp: gp || 0, rt: rt || 0,
+          ytd: ytd || 0, mtd: mtd || 0, weight: 0 });
       }
-      if (assets.length === 0) throw new Error('No se encontraron activos en la hoja ACTIVOS (filas 5-29).');
+      if (assets.length === 0) throw new Error('No se encontraron activos. Comprueba que el Excel tiene las hojas "ACTIVOS" o "📋 ACTIVOS".');
 
       // Compute weights
       const totalVal = assets.reduce((s,a)=>s+a.val, 0);
@@ -1064,28 +1098,59 @@ function processFile(file) {
         horizon_years: 10,
       };
       if (wsInp) {
-        inputs.rf               = toPct(cv(wsInp,'B5'), 0.02);
-        inputs.market_premium   = toPct(cv(wsInp,'B6'), 0.055);
-        inputs.inflation        = toPct(cv(wsInp,'B7'), 0.028);
-        inputs.tax_rate         = toPct(cv(wsInp,'B8'), 0.19);
-        inputs.fee_rf           = toPct(cv(wsInp,'B9'), 0.005);
-        inputs.fee_rv           = toPct(cv(wsInp,'B10'), 0.015);
-        inputs.fee_cr           = toPct(cv(wsInp,'B11'), 0.001);
-        inputs.target_return    = toPct(cv(wsInp,'B12'), 0.08);
-        inputs.target_vol       = toPct(cv(wsInp,'B13'), 0.12);
-        inputs.target_weight_rf = toPct(cv(wsInp,'B18'), 0.65);
-        inputs.target_weight_rv = toPct(cv(wsInp,'B19'), 0.33);
-        inputs.target_weight_cr = toPct(cv(wsInp,'B20'), 0.02);
-        inputs.exp_ret_rf       = toPct(cv(wsInp,'F18'), 0.07);
-        inputs.exp_ret_rv       = toPct(cv(wsInp,'F19'), 0.11);
-        inputs.exp_ret_cr       = toPct(cv(wsInp,'F20'), 0.18);
-        inputs.exp_vol_rf       = toPct(cv(wsInp,'G18'), 0.04);
-        inputs.exp_vol_rv       = toPct(cv(wsInp,'G19'), 0.15);
-        inputs.exp_vol_cr       = toPct(cv(wsInp,'G20'), 0.65);
-        inputs.exp_return_portfolio = toPct(cv(wsInp,'B25'), 0);
-        inputs.exp_vol_portfolio    = toPct(cv(wsInp,'B26'), 0);
-        inputs.sharpe_portfolio     = toF(cv(wsInp,'B27'), 0);
-        inputs.horizon_years        = toF(cv(wsInp,'F6'), 10);
+        // Auto-detect layout by reading a known cell
+        // New layout (cartera_real_gvc.xlsx): row 2=Rf, 3=MktPrem, 12=headers, 13=RF-cat, 14=RV-cat
+        // Old layout (portfolio_cuadro_mandos.xlsx): row 5=Rf, 18=target weights, etc.
+        const _testInpNew = cv(wsInp,'B2');  // new: has Rf value ~0.02
+        const _testInpOld = cv(wsInp,'B5');  // old: has Rf value ~0.02
+        const useNewInputs = (_testInpNew !== null && typeof _testInpNew === 'number' && _testInpNew > 0 && _testInpNew < 0.2);
+
+        if (useNewInputs) {
+          // NEW LAYOUT
+          inputs.rf               = toPct(cv(wsInp,'B2'), 0.02);
+          inputs.market_premium   = toPct(cv(wsInp,'B3'), 0.055);
+          inputs.inflation        = toPct(cv(wsInp,'B4'), 0.025);
+          inputs.tax_rate         = toPct(cv(wsInp,'B5'), 0.19);
+          inputs.fee_rf           = toPct(cv(wsInp,'B6'), 0.005);
+          inputs.fee_rv           = toPct(cv(wsInp,'B7'), 0.015);
+          inputs.target_return    = toPct(cv(wsInp,'B8'), 0.08);
+          inputs.target_vol       = toPct(cv(wsInp,'B9'), 0.12);
+          inputs.target_weight_rf = toPct(cv(wsInp,'B13'), 0.65);
+          inputs.target_weight_rv = toPct(cv(wsInp,'B14'), 0.33);
+          inputs.target_weight_cr = toPct(cv(wsInp,'B15'), 0.02);
+          inputs.exp_ret_rf       = toPct(cv(wsInp,'E13'), 0.065);
+          inputs.exp_ret_rv       = toPct(cv(wsInp,'E14'), 0.12);
+          inputs.exp_vol_rf       = toPct(cv(wsInp,'F13'), 0.04);
+          inputs.exp_vol_rv       = toPct(cv(wsInp,'F14'), 0.15);
+          inputs.exp_return_portfolio = toPct(cv(wsInp,'B18'), 0);
+          inputs.exp_vol_portfolio    = toPct(cv(wsInp,'B19'), 0);
+          inputs.sharpe_portfolio     = toF(cv(wsInp,'B20'), 0);
+          inputs.horizon_years        = toF(cv(wsInp,'E19'), 10);
+        } else {
+          // OLD LAYOUT
+          inputs.rf               = toPct(cv(wsInp,'B5'), 0.02);
+          inputs.market_premium   = toPct(cv(wsInp,'B6'), 0.055);
+          inputs.inflation        = toPct(cv(wsInp,'B7'), 0.028);
+          inputs.tax_rate         = toPct(cv(wsInp,'B8'), 0.19);
+          inputs.fee_rf           = toPct(cv(wsInp,'B9'), 0.005);
+          inputs.fee_rv           = toPct(cv(wsInp,'B10'), 0.015);
+          inputs.fee_cr           = toPct(cv(wsInp,'B11'), 0.001);
+          inputs.target_return    = toPct(cv(wsInp,'B12'), 0.08);
+          inputs.target_vol       = toPct(cv(wsInp,'B13'), 0.12);
+          inputs.target_weight_rf = toPct(cv(wsInp,'B18'), 0.65);
+          inputs.target_weight_rv = toPct(cv(wsInp,'B19'), 0.33);
+          inputs.target_weight_cr = toPct(cv(wsInp,'B20'), 0.02);
+          inputs.exp_ret_rf       = toPct(cv(wsInp,'F18'), 0.07);
+          inputs.exp_ret_rv       = toPct(cv(wsInp,'F19'), 0.11);
+          inputs.exp_ret_cr       = toPct(cv(wsInp,'F20'), 0.18);
+          inputs.exp_vol_rf       = toPct(cv(wsInp,'G18'), 0.04);
+          inputs.exp_vol_rv       = toPct(cv(wsInp,'G19'), 0.15);
+          inputs.exp_vol_cr       = toPct(cv(wsInp,'G20'), 0.65);
+          inputs.exp_return_portfolio = toPct(cv(wsInp,'B25'), 0);
+          inputs.exp_vol_portfolio    = toPct(cv(wsInp,'B26'), 0);
+          inputs.sharpe_portfolio     = toF(cv(wsInp,'B27'), 0);
+          inputs.horizon_years        = toF(cv(wsInp,'F6'), 10);
+        }
       }
       // Calculate portfolio sharpe if not set
       if (!inputs.sharpe_portfolio && inputs.exp_vol_portfolio) {
@@ -1149,7 +1214,19 @@ function processFile(file) {
         updated_at: new Date().toLocaleString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
         best_asset:  { name: sortedRt.at(-1)?.name||'', rt: sortedRt.at(-1)?.rt||0 },
         worst_asset: { name: sortedRt[0]?.name||'',     rt: sortedRt[0]?.rt||0 },
-        cats: { RF: catData('RF'), RV: catData('RV'), CR: catData('CR') },
+        cats: {
+          RF:  catData('RF'),
+          RV:  catData('RV'),
+          CR:  catData('CR'),
+          SCR: catData('SCR'),
+          // Merge SCR into CR for backward compat with display
+          get _cr() { const c=this.CR, s=this.SCR; return {
+            val: c.val+s.val, inv: c.inv+s.inv, gp: c.gp+s.gp,
+            rt: (c.inv+s.inv) ? (c.gp+s.gp)/(c.inv+s.inv) : 0,
+            ytd: (c.val+s.val) ? (c.ytd*c.val+s.ytd*s.val)/(c.val+s.val) : 0,
+            weight: c.weight+s.weight, count: c.count+s.count
+          }; }
+        },
       };
 
       // ── Set globals ─────────────────────────────────────────────────────────
@@ -1191,7 +1268,7 @@ function updateKPICards() {
   const inp = PORTFOLIO_INPUTS;
   const rf_cat = s.cats?.RF || {};
   const rv_cat = s.cats?.RV || {};
-  const cr_cat = s.cats?.CR || {};
+  const cr_cat = s.cats?._cr || s.cats?.CR || s.cats?.SCR || {};
   const setKPI = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
   setKPI('kpiTotalVal',  '€' + (s.total_val||0).toLocaleString('es-ES',{maximumFractionDigits:0}));
   setKPI('kpiGP',        (s.total_gp>=0?'+€':'-€') + Math.abs(s.total_gp||0).toLocaleString('es-ES',{maximumFractionDigits:0}));
@@ -1235,6 +1312,19 @@ function bootDashboard() {
   }
   updateKPICards();
   activateTab('overview');
+  // Rebuild overviewTFData from real loaded assets
+  const _rfA=ASSETS.filter(a=>a.cat==='RF'), _rvA=ASSETS.filter(a=>a.cat==='RV'),
+        _crA=ASSETS.filter(a=>a.cat==='CR'||a.cat==='SCR'), _all=ASSETS;
+  const _mk=(grp,label,col)=>({label,data:grp.map(a=>+(a.rt*100).toFixed(2)),
+    borderColor:col,backgroundColor:col+'33',borderWidth:2,pointRadius:3,tension:0.3});
+  overviewTFData[0] = {
+    labels: _all.map(a=>a.name.replace('GVC Gaesco ','').replace('GVC GAESCO ','').slice(0,20)),
+    datasets: [
+      _mk(_rfA,'Renta Fija','#00e5a0'),
+      _mk(_rvA,'Renta Variable','#4a9eff'),
+      ...(_crA.length ? [_mk(_crA,'Otros/SCR','#f5c518')] : []),
+    ]
+  };
   buildOverviewLine(0);
   updateOverviewCharts();
   renderAssetsTable();
@@ -1290,7 +1380,9 @@ function setFilter(f) {
 }
 
 function filteredAssets() {
-  return activeFilter === 'all' ? ASSETS : ASSETS.filter(a => a.cat === activeFilter);
+  if (activeFilter === 'all') return ASSETS;
+  if (activeFilter === 'CR') return ASSETS.filter(a => a.cat === 'CR' || a.cat === 'SCR');
+  return ASSETS.filter(a => a.cat === activeFilter);
 }
 
 // ════════════════════════════════════════
@@ -1472,7 +1564,12 @@ function updateOverviewCharts() {
   const totalVal = fa.reduce((s,a)=>s+a.val,0);
 
   // cat bar charts
-  const cats = activeFilter==='all' ? ['RF','RV','CR'] : [activeFilter];
+  // Detect which categories exist in data
+  const existingCats = [...new Set(ASSETS.map(a=>a.cat))];
+  const hasCR  = existingCats.includes('CR');
+  const hasSCR = existingCats.includes('SCR');
+  const thirdCat = hasCR ? 'CR' : (hasSCR ? 'SCR' : 'CR');
+  const cats = activeFilter==='all' ? ['RF','RV',thirdCat] : [activeFilter];
   const catRt  = cats.map(c=>{ const g=fa.filter(a=>a.cat===c); const i=g.reduce((s,a)=>s+a.inv,0); const v=g.reduce((s,a)=>s+a.val,0); return i>0?((v-i)/i*100):0; });
   const catYtd = cats.map(c=>{ const g=fa.filter(a=>a.cat===c); return g.length?g.reduce((s,a)=>s+a.ytd,0)/g.length*100:0; });
   const catMtd = cats.map(c=>{ const g=fa.filter(a=>a.cat===c); return g.length?g.reduce((s,a)=>s+a.mtd,0)/g.length*100:0; });
@@ -1488,7 +1585,7 @@ function updateOverviewCharts() {
     mkChart('donutChart',{type:'doughnut',data:{labels:['Renta Fija','Renta Variable','Criptomonedas'],datasets:[{data:[
     (PORTFOLIO_SUMMARY.cats?.RF?.val||122503.95),
     (PORTFOLIO_SUMMARY.cats?.RV?.val||36493.45),
-    (PORTFOLIO_SUMMARY.cats?.SCR?.val || PORTFOLIO_SUMMARY.cats?.CR?.val || 6000)
+    ((PORTFOLIO_SUMMARY.cats?._cr?.val) || (PORTFOLIO_SUMMARY.cats?.SCR?.val) || (PORTFOLIO_SUMMARY.cats?.CR?.val) || 0)
   ],backgroundColor:['#00e5a0','#4a9eff','#f5c518'],borderColor:'#0a0c0f',borderWidth:3,hoverOffset:8}]},options:{responsive:true,cutout:'66%',plugins:{legend:{position:'bottom',labels:{padding:14,font:{size:10},boxWidth:8}},tooltip:{callbacks:{label:ctx=>`€${ctx.parsed.toLocaleString('es-ES',{maximumFractionDigits:0})} (${(ctx.parsed/TOTAL_VAL*100).toFixed(1)}%)`}}}}});
   } else {
     const g=fa;
@@ -1505,7 +1602,7 @@ function updateOverviewCharts() {
 function buildReturnCharts() {
   const rf = ASSETS.filter(a=>a.cat==='RF');
   const rv = ASSETS.filter(a=>a.cat==='RV');
-  const cr = ASSETS.filter(a=>a.cat==='CR');
+  const cr = ASSETS.filter(a=>a.cat==='CR'||a.cat==='SCR');
 
   // Line: multi-timeframe comparison
   buildReturnsLine(0);
@@ -1618,7 +1715,7 @@ function buildRiskCharts() {
     data:{datasets:[
       {label:'RF',data:ASSETS.filter(a=>a.cat==='RF').map(a=>({x:Math.abs(a.mtd)*100,y:a.rt*100,label:a.name})),backgroundColor:'rgba(0,229,160,0.6)',borderColor:'#00e5a0',pointRadius:8},
       {label:'RV',data:ASSETS.filter(a=>a.cat==='RV').map(a=>({x:Math.abs(a.mtd)*100,y:a.rt*100,label:a.name})),backgroundColor:'rgba(74,158,255,0.6)',borderColor:'#4a9eff',pointRadius:8},
-      {label:'Cripto',data:ASSETS.filter(a=>a.cat==='CR').map(a=>({x:Math.abs(a.mtd)*100,y:a.rt*100,label:a.name})),backgroundColor:'rgba(245,197,24,0.6)',borderColor:'#f5c518',pointRadius:8},
+      {label:'Cripto/SCR',data:ASSETS.filter(a=>a.cat==='CR'||a.cat==='SCR').map(a=>({x:Math.abs(a.mtd)*100,y:a.rt*100,label:a.name})),backgroundColor:'rgba(245,197,24,0.6)',borderColor:'#f5c518',pointRadius:8},
     ]},
     options:{
       responsive:true,
@@ -1710,6 +1807,17 @@ function buildRiskCharts() {
 //  ANALYSIS: optimized chart
 // ════════════════════════════════════════
 function buildAnalysisCharts() {
+  // If no scenarios data, use defaults based on current portfolio
+  if (!PORTFOLIO_SCENARIOS || PORTFOLIO_SCENARIOS.length === 0) {
+    const tv = PORTFOLIO_SUMMARY.total_val || TOTAL_VAL;
+    PORTFOLIO_SCENARIOS = [
+      { label:'🟢 Favorable',          shock_rf:0.03,  shock_rv:0.15,  shock_cr:0.30, impact:0.08,  val_est:tv*1.08,  loss_est:0 },
+      { label:'⚪ Base',               shock_rf:0.01,  shock_rv:0.05,  shock_cr:0.05, impact:0.03,  val_est:tv*1.03,  loss_est:0 },
+      { label:'🟡 Corrección moderada',shock_rf:-0.02, shock_rv:-0.12, shock_cr:-0.20,impact:-0.07, val_est:tv*0.93,  loss_est:tv*0.07 },
+      { label:'🔴 Mercado bajista',    shock_rf:-0.05, shock_rv:-0.28, shock_cr:-0.50,impact:-0.18, val_est:tv*0.82,  loss_est:tv*0.18 },
+      { label:'🚨 Crisis severa',      shock_rf:-0.10, shock_rv:-0.45, shock_cr:-0.75,impact:-0.32, val_est:tv*0.68,  loss_est:tv*0.32 },
+    ];
+  }
   mkChart('optimizedChart',{
     type:'bar',
     data:{
